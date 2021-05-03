@@ -1,0 +1,183 @@
+<div class="d-flex align-items-start">
+  <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+    <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">xlsx</button>
+    <button onclick="inp_tb()" class="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">input</button>
+    <button onclick="inp_tb1()" class="nav-link" id="v-pills-messages-tab" data-bs-toggle="pill" data-bs-target="#v-pills-messages" type="button" role="tab" aria-controls="v-pills-messages" aria-selected="false">download xlsx</button>
+    <button class="nav-link" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">Settings</button>
+  </div>
+  <div class="tab-content" id="v-pills-tabContent">
+    <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+        <form action="/admin/xlsx" enctype="multipart/form-data" method="POST">
+            <div class="input-group mb-3">
+                <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon03">Button</button>
+                <input type="file"  name="xlsx1" class="form-control" id="inputGroupFile03" aria-describedby="inputGroupFileAddon03" aria-label="Upload">
+            </div>
+        </form>
+    </div>
+    <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+        <h2 id='sel_tab'>select table</h2>
+    </div>
+    <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">
+        <h2 id='sel_tab1'>select table</h2>
+    </div>
+    <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">...</div>
+  </div>
+</div>
+<script>
+
+let main_obj = {
+    input1:function(x){
+        let json_data = JSON.parse(x)
+        let select = '<select id="insel_tab" class="form-select form-select-sm" aria-label=".form-select-sm example">'
+        for(let i = 0;i<json_data.length;i++){
+            select+= '<option value="'+json_data[i].table_name+'">'+json_data[i].table_name+'</option>';
+        }
+        select+='</select><button type="button" onclick="select_bttn()" class="btn btn-primary" style="margin-top: 1rem;margin-bottom: 3rem;">Select</button>';
+        let inn = document.getElementById('v-pills-profile');
+        inn.innerHTML = "<h2 id='sel_tab'>select table</h2>";
+        let sel_tab = document.getElementById('sel_tab');
+        sel_tab.insertAdjacentHTML('afterend', select);
+    },
+    input2:function(x,y){
+        let json_tabs = JSON.parse(x);
+        let form = '<form method="POST" id="forma_vidpr" tb_name="'+y+'">';
+        for(let i = 0;i<json_tabs.length;i++){
+            form+=`<div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">`+json_tabs[i].column_name+`</span>
+                    <input type="text" class="form-control" name="`+json_tabs[i].column_name+`" aria-describedby="basic-addon1">
+                   </div>`
+        }
+        form+='<button type="button" onclick="insert_bttn()" class="btn btn-primary" style="margin-top: 1rem;">Input</button></form>';
+        console.log(form)
+        let vstavka = document.getElementById('v-pills-profile');
+        vstavka.insertAdjacentHTML('beforeend', form);
+    },
+    xlsx_input:function(x){
+        let json_data = JSON.parse(x);
+        let select = '<select id="insel_tab1" class="form-select form-select-sm" aria-label=".form-select-sm example">'
+        for(let i = 0;i<json_data.length;i++){
+            select+= '<option value="'+json_data[i].table_name+'">'+json_data[i].table_name+'</option>';
+        }
+        select+='</select><button type="button" onclick="xlsx_bttn()" id="xlsx_bttn" class="btn btn-primary" style="margin-top: 1rem;margin-bottom: 3rem;">Select</button>';
+        let inn = document.getElementById('v-pills-messages');
+        inn.innerHTML = "<h2 id='sel_tab1'>select table</h2>";
+        let sel_tab1 = document.getElementById('sel_tab1');
+        sel_tab1.insertAdjacentHTML('afterend', select);
+        console.log(select)
+    }
+}
+
+function insert_bttn(){
+    let forma = document.getElementById('forma_vidpr');
+    let table_name = forma.getAttribute('tb_name');
+    console.log('tb_name ', table_name)
+    let data = new Map()
+    data.set("table",table_name);
+    console.log('---------------')
+    for(let i = 0;i<forma.childNodes.length-1;i++){
+        data.set(forma.childNodes[i].childNodes[1].innerHTML,forma.childNodes[i].childNodes[3].value);
+    }
+    let obj = Object.fromEntries(data);
+    data = JSON.stringify(obj);
+    let request2 = new XMLHttpRequest();
+    request2.open("POST", "/admin/insert", true);   
+    request2.setRequestHeader("Content-Type", "application/json");
+    request2.addEventListener("load", function () {
+        console.log(request2.responseText)
+    });
+    request2.send(data);
+}
+
+function select_bttn(){
+    let select_form = document.getElementById('insel_tab');
+    let request1 = new XMLHttpRequest();
+    let data1 =JSON.stringify({
+        "content" : select_form.value
+    });
+    request1.open("POST", "/admin/polyatabl", true);   
+    request1.setRequestHeader("Content-Type", "application/json");
+    request1.addEventListener("load", function () {
+        main_obj.input2(request1.response,select_form.value);
+    });
+    request1.send(data1);
+}
+function xlsx_bttn(){
+    console.log('xlsx bttn')
+    let bttn = document.getElementById('v-pills-messages');
+        console.log(bttn.outerHTML)
+        bttn.insertAdjacentHTML("beforeend","<br><a onclick='del_xlsx()' href='/public/table.xlsx' >Скачати файл</a>")
+    let xlsx_value = document.getElementById('insel_tab1');
+    let data = JSON.stringify({
+        "content" : xlsx_value.value
+    })
+    let request = new XMLHttpRequest();
+    request.open("POST", "/admin/jsontoxlsx", true);   
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", function () {
+        console.log(request.responseText);
+    });
+    request.send(data);
+}
+
+function del_xlsx(){
+    console.log('locationnnn')
+    let request = new XMLHttpRequest();
+    let data='';
+    //var oReq = new XMLHttpRequest();
+//oReq.open("GET", "/table.xlsx", true);
+//oReq.responseType = "arraybuffer";
+
+//oReq.onload = function (oEvent)// {
+//  var arrayBuffer = oReq.response; // Note: not oReq.responseText
+//  if (arrayBuffer) {
+//    var byteArray = new Uint8Array(arrayBuffer);
+//    for (var i = 0; i < byteArray.byteLength; i++) {
+//      console.log(byteArray[i])
+//    }
+//  }
+//};
+
+//oReq.send(null);
+
+request.open("POST", "/admin/delxlsx", true);   
+request.setRequestHeader("Content-Type", "application/json");
+request.addEventListener("load", function () {
+    console.log(request.responseText);
+});
+request.send(data);
+}
+
+function inp_tb(){
+    let request = new XMLHttpRequest();
+    let data =JSON.stringify({
+        "content" : "*"
+    });
+    request.open("POST", "/admin/tabs", true);   
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", function () {
+        main_obj.input1(request.response);
+    });
+    request.send(data);
+}
+function inp_tb1(){
+    let request = new XMLHttpRequest();
+    let data =JSON.stringify({
+        "content" : "*"
+    });
+    request.open("POST", "/admin/tabs", true);   
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", function () {
+        main_obj.xlsx_input(request.response);
+    });
+    request.send(data);
+}
+
+
+
+</script>
+
+
+
+
+
+    

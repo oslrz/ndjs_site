@@ -1,0 +1,168 @@
+<style>
+.container{
+  max-width: 50rem;
+}
+input :valid{
+  border: solid green;
+}
+input :invalid{
+  border: solid 6px red;
+}
+</style>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Вхід</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Реєстра́ція</button>
+  </li>
+</ul>
+
+<div class="tab-content" id="myTabContent">
+
+
+  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+    <form name="registerForm" id = 'logform'>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default">Логін</span>
+        <input class="form-control" aria-label="Sizing example input" type="text" name="login" id = "log">
+      </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default">Пароль</span>
+        <input class="form-control" aria-label="Sizing example input" type="text" name="password" id = "log_pass">
+      </div>
+      <button type="" class="btn btn-primary" id="submit">Вхід</button>
+    </form>
+  </div>
+
+
+  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+    <form>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default">імя</span>
+        <input class="form-control" aria-label="Sizing example input" type = 'text' id='reg_name' name = 'name' pattern ="[A-Za-zа-щА-ЩЬьЮюЯяЇїІіЄєҐґ]+" required>
+      </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default">фамілія</span>
+        <input class="form-control" aria-label="Sizing example input" type = 'text' id='reg_surname' name = 'surname' pattern ="[A-Za-zа-щА-ЩЬьЮюЯяЇїІіЄєҐґ]+" required>
+      </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default">моб телефон</span>
+        <input class="form-control" aria-label="Sizing example input" type = 'text' id='reg_phone_number' name = 'phone_number' pattern ="(\380|0)\d{9}" required>
+      </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default">пароль</span>
+        <input class="form-control" aria-label="Sizing example input" type = 'text' id='reg_password' name = 'password' pattern ="[A-Za-zа-щА-ЩЬьЮюЯяЇїІіЄєҐґ]+" required>
+      </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default">емейл</span>
+        <input class="form-control" aria-label="Sizing example input" type = 'text' id='reg_email' name = 'email' pattern ="[A-Za-zа-щА-ЩЬьЮюЯяЇїІіЄєҐґ]+" required>
+      </div>
+        <button type="button" id='reg_bttn' class="btn btn-primary">Реєстрація</button>
+      </div>
+    </form>
+  </div>
+
+
+</div>
+<script>
+if(localStorage.getItem('name') != undefined){
+  console.log("Вітаю "+ localStorage.getItem('name') +" "+ localStorage.getItem('surname'));
+  a_id.innerHTML = "Вітаю "+ localStorage.getItem('name') +" "+ localStorage.getItem('surname');
+  let inf = "Вітаю "+ localStorage.getItem('name') +" "+ localStorage.getItem('surname');
+}
+
+window.onload = function baka(){
+  var elems = document.querySelectorAll('.dropdown-trigger');
+  var dropdowns = document.querySelectorAll('.dropdown-trigger')
+  for (var i = 0; i < dropdowns.length; i++){
+    M.Dropdown.init(dropdowns[i]);
+  }
+}
+let reg_namee = document.getElementById('reg_name');
+reg_namee.addEventListener('input', ()=>{
+  let rex = new RegExp("/[\\і\\Іa-zA-Zа-яА-Я]/g");
+  if(rex.test(reg_namee)){
+    reg_namee.style.border = 'solid red'
+  }else{
+    reg_namee.style.border = 'solid green'
+  }
+})
+
+let reg_bttn = document.getElementById('reg_bttn');
+reg_bttn.onclick = () =>{
+  let reg_name = document.getElementById('reg_name');
+  let reg_surname = document.getElementById('reg_surname');
+  let reg_phone_number = document.getElementById('reg_phone_number');
+  let reg_password = document.getElementById('reg_password');
+  let reg_email = document.getElementById('reg_email');
+  if(reg_phone_number.value =='' || reg_phone_number.value == undefined){
+    console.log('введіть номер телефону');
+  }else{
+    let data = JSON.stringify({
+      "phone" : reg_phone_number.value
+    });
+    //let code = prompt('введіть код з смс');
+    let smsreq = new XMLHttpRequest();
+    smsreq.open("POST",'/auth/smsreg',true);
+    smsreq.setRequestHeader("Content-Type", "application/json");
+    smsreq.addEventListener("load", function () {
+        console.log(smsreq.responseText);
+        let code = prompt('введіть код з смс');
+        if(code == smsreq.responseText){
+          console.log('вас буде зареєстровано');
+          let registr = new XMLHttpRequest();
+          let registr_data = JSON.stringify({
+            "name" : reg_name.value,
+            "surname" : reg_surname.value,
+            "phone_number" : reg_phone_number.value,
+            "password" : reg_password.value,
+            "email" : reg_email.value
+          })
+          registr.open("POST",'/auth/registration',true);
+          registr.setRequestHeader("Content-Type", "application/json");
+          registr.addEventListener("load", function (){
+            console.log("Вітаю!");
+          })
+          registr.send(registr_data);
+        }else{
+          console.log('error!');
+        }
+
+    });
+    console.log(data)
+    smsreq.send(data);
+  }
+}
+
+
+document.getElementById("submit").addEventListener("click", function (e) {
+  e.preventDefault();
+  let login = log.value;
+  let password = log_pass.value;
+  let user = JSON.stringify({"login": login, "password": password});
+  let request = new XMLHttpRequest();
+  request.open("POST", "/auth", true);   
+  request.setRequestHeader("Content-Type", "application/json");
+  request.addEventListener("load", function () {
+    let receivedUser = JSON.parse(request.response);
+    console.log(receivedUser)
+    if(receivedUser[0] == undefined){
+      alert('Введіть правильні данні')
+    }else{
+      console.log(receivedUser[0])
+      if(login == 'admin' && receivedUser[0].name=='administrator' && receivedUser[0].username=='ad'){
+        window.location.href = '/admin';
+      }else{
+        localStorage.setItem('login',login);
+        localStorage.setItem('name', receivedUser[0].name);
+        localStorage.setItem('surname', receivedUser[0].username);
+        a_id.innerHTML = "Вітаю "+ receivedUser[0].name +" "+ receivedUser[0].username;
+        window.location.href = '/';
+      }
+    }
+  });
+  request.send(user);
+});
+
+</script>

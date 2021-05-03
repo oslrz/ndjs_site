@@ -1,0 +1,30 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+<script>
+  if(localStorage.getItem('login') != null || localStorage.getItem('login') != undefined){
+    console.log("Вітаю "+ localStorage.getItem('name') +" "+ localStorage.getItem('username'));
+    a_id.innerHTML = "Вітаю "+ localStorage.getItem('name') +" "+ localStorage.getItem('username');
+    let inf = "Вітаю "+ localStorage.getItem('name') +" "+ localStorage.getItem('username');
+    a_id.onmouseover = function mouse_on(){
+      a_id.innerHTML = "Вихід"; 
+    }
+    a_id.onmouseout = function mouse_off(){
+      a_id.innerHTML = inf; 
+    }
+    a_id.onclick = function exit(){
+      localStorage.removeItem('login')
+      localStorage.removeItem('name');
+      localStorage.removeItem('username');
+    }
+    if(sessionStorage.getItem('корзина') =="" || sessionStorage.getItem('корзина') === null){
+      console.log('кошик пустий')
+      let id = document.getElementById("a_id");
+      id.disable = "true";
+    }
+
+    // document.addEventListener('DOMContentLoaded', function() {
+   // 
+  //});
+  alert('valera')
+ 
+}
+</script>

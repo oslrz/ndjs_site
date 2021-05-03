@@ -1,0 +1,22 @@
+
+    <h1>Валєра вже зареєструвався, а ти?</h1>
+    <a href="auth">зареєструватися</a>
+
+<script>
+      console.log('кошик пустий')
+      let id = document.getElementById("a_id");
+      id.onclick = function pust(){
+          if(sessionStorage.getItem('корзина') =="" || sessionStorage.getItem('корзина') === null){
+              id.href = "/";
+          }else{
+              id.href = "/bskt";
+          }
+      }
+    window.onload = function baka(){
+        var elems = document.querySelectorAll('.dropdown-trigger');
+        var dropdowns = document.querySelectorAll('.dropdown-trigger')
+        for (var i = 0; i < dropdowns.length; i++){
+          M.Dropdown.init(dropdowns[i]);
+        }
+    }
+    </script>

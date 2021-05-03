@@ -1,0 +1,349 @@
+<style>
+  .row{
+    width: 100%;
+    background-color: aliceblue;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+    margin-top: 20px;
+    margin-bottom: 0px !important;
+  }
+  .container{
+    margin-left: 7rem;
+  }
+  .container .row {
+    margin-left: 0rem !important;
+    margin-right: 0rem !important;
+  }
+  #right_panel{
+    font-size: 1rem;
+    position: sticky;
+    width: 400px;
+    height: max-content;
+    background-color: #647860;
+    background-color: aliceblue !important;
+    float: inline-end;
+    top:0;
+    margin-top: 1%;
+    margin-right: 1%;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  }
+  #right_panel h4{
+    font-size: 1.5rem;
+  }
+  .card mb-3{
+    background-color: aqua ;
+  }
+  
+</style>
+<div class="d-flex flex-column bd-highlight mb-3">
+{{#if data.length}}
+
+{{#each data}}
+  {{!-- <div class="row g-0">
+    <div class="col-md-4">
+      <img src="{{img}}" alt="...">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title">{{brand}} {{model}}</h5>
+        <p class="card-text">{{inf}}</p>
+        <p class="card-text"><small class="text-muted">{{price}}</small></p>
+      </div>
+    </div>
+  </div> --}}
+  <div class="card" style="flex-direction: row;margin-bottom: 1rem;" id="{{code}}">
+    <div class="photo">
+      <img src="{{img}}"  alt="...">
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{brand}} {{model}}</h5>
+        <p class="card-text">{{inf}}</p>
+        <a href="" class="price">{{price}}</a>
+    </div>
+    <div class="knopochky" style="border-left: solid;">
+      <i style="margin: 40px;display: block;font-size: xx-large;" onclick="del({{code}})" class="icofont-ui-delete"></i>
+      <i style="position: relative;display: block;left: 39%;width: min-content;font-size: xx-large;" onclick="plus({{code}})" class="icofont-plus"></i>
+      <a style="position: relative;display: block;left: 41%;top: 5%;text-align: center;width: min-content;font-size: x-large;" class="counter" >{{count}}</a>
+      <i style="position: relative;display: block;left: 42%;top: 7%;width: min-content;font-size: xx-large;" onclick="minus({{code}})" class="icofont-minus"></i>
+    </div>
+  </div>
+
+  {{/each}}
+  
+{{else}}
+    <p>no data</p>
+{{/if}}
+
+
+</div>
+<script>
+function pererah(){
+  let sum = document.getElementById('zahalna_sum');
+  let kilk = document.getElementById('zahalna_kilk');
+  let counter = document.querySelectorAll('.counter');
+  kilk.innerHTML = '0';
+  sum.innerHTML = '0';
+  for(let elem of counter){
+    kilk.innerHTML = parseInt(kilk.innerHTML) + parseInt(elem.innerHTML);
+  }
+  let price = document.querySelectorAll('.price');
+  for(let elem of price){
+    let klk = elem.parentElement.nextElementSibling.childNodes[5].innerHTML;
+    console.log(klk)
+    sum.innerHTML=parseInt(sum.innerHTML)+(parseInt(klk) * parseInt(elem.innerHTML));
+  }
+}
+
+window.onload = function baka(){
+        var elems = document.querySelectorAll('.dropdown-trigger');
+        var dropdowns = document.querySelectorAll('.dropdown-trigger')
+        for (var i = 0; i < dropdowns.length; i++){
+          M.Dropdown.init(dropdowns[i]);
+        }
+    }
+
+function splitString(stringToSplit, separator) {
+  const arrayOfStrings = stringToSplit.split(separator);
+  return(arrayOfStrings);
+}
+
+
+function del(id){
+  console.log(id)
+  if(localStorage.getItem('login') === null){
+    let inf = sessionStorage.getItem('корзина')
+     data = splitString(inf,',');
+     let new_inf = '';
+     let bool=false;
+    for(let i = 0;i<data.length-1;i++){
+       let data2 = splitString(data[i],':');
+       if(data2[0] == id){
+         bool = true;
+       }else{
+        new_inf+=data2[0]+":"+data2[1]+",";
+       }
+     }
+     sessionStorage.setItem('корзина',new_inf);
+    let dom = document.getElementById(id);
+    dom.remove();
+  }else{
+    console.log('my zareestrovani');
+    let delt = new XMLHttpRequest();
+    let delt_data = JSON.stringify({
+      "data": "delete:"+id,
+      "login": localStorage.getItem('login')
+    });
+    console.log(delt_data)
+    delt.open("POST", "/plnmdel", true);   
+    delt.setRequestHeader("Content-Type", "application/json");
+    delt.addEventListener("load", function () {
+      console.log(delt.response)
+    });
+    delt.send(delt_data);
+    let dom = document.getElementById(id);
+    dom.remove();
+  }
+  pererah();
+}
+
+
+function plus(id){
+  console.log("plus: "+id)
+  if(localStorage.getItem('login') === null){
+    let inf = sessionStorage.getItem('корзина')
+     data = splitString(inf,',');
+     let new_inf = '';
+     let bool=false;
+    for(let i = 0;i<data.length-1;i++){
+       let data2 = splitString(data[i],':');
+       if(data2[0] == id){
+        data2[1] = parseInt(data2[1]);
+        data2[1]++;
+        new_inf+=data2[0]+":"+data2[1]+",";
+       }else{
+        new_inf+=data2[0]+":"+data2[1]+",";
+       }
+     }
+     sessionStorage.setItem('корзина',new_inf);
+  }else{
+    console.log('my zareestrovani');
+    let plus = new XMLHttpRequest();
+    let plus_data = JSON.stringify({
+      "data": "plus:"+id,
+      "login": localStorage.getItem('login')
+    });
+    console.log(plus_data)
+    plus.open("POST", "/plnmdel", true);   
+    plus.setRequestHeader("Content-Type", "application/json");
+    plus.addEventListener("load", function () {
+      console.log(plus.response)
+
+    });
+    plus.send(plus_data);
+  }
+  let dom_plus = document.getElementById(id);
+  dom_plus.childNodes[5].childNodes[5].innerHTML = parseInt(dom_plus.childNodes[5].childNodes[5].innerHTML)+1;
+  //console.log(dom_plus.childNodes[5].childNodes[5].innerHTML);
+  pererah()
+}
+
+
+function minus(id){
+  console.log("minus: "+id)
+  if(localStorage.getItem('login') === null){
+    let inf = sessionStorage.getItem('корзина')
+     data = splitString(inf,',');
+     let new_inf = '';
+     let bool=false;
+    for(let i = 0;i<data.length-1;i++){
+       let data2 = splitString(data[i],':');
+       if(data2[0] == id){
+         if(data2[1] == "0"){
+           continue;
+         }else{
+           data2[1] = parseInt(data2[1]);
+           data2[1]--;
+           new_inf+=data2[0]+":"+data2[1]+",";
+         }
+       }else{
+        new_inf+=data2[0]+":"+data2[1]+",";
+       }
+     }
+     sessionStorage.setItem('корзина',new_inf);
+  }else{
+    console.log('my zareestrovani');
+    let minus = new XMLHttpRequest();
+    let minus_data = JSON.stringify({
+      "data": "minus:"+id,
+      "login": localStorage.getItem('login')
+    });
+    console.log(minus_data)
+    minus.open("POST", "/plnmdel", true);   
+    minus.setRequestHeader("Content-Type", "application/json");
+    minus.addEventListener("load", function () {
+      console.log(minus.response)
+    });
+    minus.send(minus_data);
+  }
+  let dom_plus = document.getElementById(id);
+  dom_plus.childNodes[5].childNodes[5].innerHTML = parseInt(dom_plus.childNodes[5].childNodes[5].innerHTML)-1;
+  pererah()
+}
+
+
+console.log(localStorage.getItem('login'));
+
+
+
+if(localStorage.getItem('login') !== null){
+  console.log('je login')
+    let request = new XMLHttpRequest();
+    let data = JSON.stringify({
+      "login": localStorage.getItem('login')
+    });
+    console.log(data)
+     request.open("POST", "/bskt", true);   
+     request.setRequestHeader("Content-Type", "application/json");
+     request.addEventListener("load", function () {
+       console.log(request.response)
+      document.body.innerHTML = request.response;
+      let naw_panel = document.getElementById('naw_panel');
+      naw_panel.insertAdjacentHTML('afterend',
+          `<div id='right_panel'>
+            <fieldset><legend>Блок 1</legend>
+              <h4>Загальна сума товарів:</h4>
+              <p id='zahalna_sum' style='text-align: center;'>0</p>
+              <h4>Кількість товару:</h4>
+              <p style='text-align: center;' id='zahalna_kilk'>0</p>
+            </fieldset>
+            <button onclick='fomation()'>Оформити замовлення <i class="icofont-check-alt"></i></button>
+            <fieldset>
+              <legend>Адреса доставки</legend>
+              <input id='city' type='text' placeholder='місто/село'>
+              <input id='street' type='text' placeholder='вулиця'>
+              <input id='house' type='text' placeholder='№ будинку'>
+            </fieldset>
+            <button onclick='pokypka()'>купити <i class="icofont-cart"></i></button>
+          </div>`);
+      pererah()
+     });
+     request.send(data);
+}
+else{
+    if(sessionStorage.getItem('корзина') === null || sessionStorage.getItem('корзина') == ""){
+      alert('корзина пуста')
+    }else{
+      let data = JSON.stringify({
+      "data" : sessionStorage.getItem('корзина')
+    });
+    console.log(data)
+    let request = new XMLHttpRequest();
+    request.open("POST", "/noLoginBskt", true);   
+     request.setRequestHeader("Content-Type", "application/json");
+     request.addEventListener("load", function () {
+        console.log(request.response)
+        document.body.innerHTML = request.response;
+          let naw_panel = document.getElementById('naw_panel')
+          naw_panel.insertAdjacentHTML('afterend',
+          `<div id='right_panel'>
+            <fieldset id="oform">
+              <legend>Блок 1</legend>
+              <h4>Загальна сума товарів:</h4>
+              <p id='zahalna_sum' style='text-align: center;'>0</p>
+              <h4>Кількість товару:</h4>
+              <p style='text-align: center;' id='zahalna_kilk'>0</p>
+              <button id="form_bttn" onclick='fomation()'>Оформити замовлення <i class="icofont-check-alt"></i></button>
+            </fieldset>
+            
+            <fieldset id="pokup" style="display: none;">
+              <legend>Адреса доставки</legend>
+              <input id='city' type='text' placeholder='місто/село'>
+              <input id='street' type='text' placeholder='вулиця'>
+              <input id='house' type='text' placeholder='№ будинку'><br>
+              <button onclick='pokypka()'>купити <i class="icofont-cart"></i></button>
+            </fieldset>
+          </div>`);
+          pererah();
+     });
+     request.send(data);
+    }
+}
+function fomation(){
+  let ofoml = document.getElementById('oform');
+  let ofoml_bttn = document.getElementById('form_bttn');
+  let pokyp = document.getElementById('pokup');
+  pokyp.style.display = 'block';
+  ofoml_bttn.style.display = 'none'
+}
+//function pokypka(){
+//  let tov = document.querySelectorAll('.row');
+//  let doc = '';
+//  let city = document.getElementById('city');
+//  let street = document.getElementById('street');
+//  let house = document.getElementById('house');
+//  for(let elem of tov){
+//    doc+=elem.getAttribute('id')+":"+elem.childNodes[7].childNodes[5].innerHTML+",";
+//  }
+//
+//  let data3 = '';
+//
+//  if(localStorage.getItem('login') !== null){
+//    data3 = JSON.stringify({
+//      "data" : doc,
+//      "adress": city.value+"/"+street.value+"/"+house.value,
+//      "login": localStorage.getItem("login")
+//    })
+//  }else{
+//    data3 = JSON.stringify({
+//      "data" : doc,
+//      "adress": city.value+"/"+street.value+"/"+house.value
+//    })
+//  }
+//  let request = new XMLHttpRequest();
+//  request.open("POST", "/pokypka", true);   
+//  request.setRequestHeader("Content-Type", "application/json");
+//  request.addEventListener("load", function () {
+//    console.log(request.response)
+//  });
+//  request.send(data3);
+//}
+</script>

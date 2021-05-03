@@ -1,0 +1,129 @@
+<style>
+.card-img, .card-img-bottom, .card-img-top {
+  height: 200px;
+}
+.container{
+  margin-left: 30rem;
+}
+#left_panel{
+  background-color: #758c70;
+  width: 23rem;
+  height: 30rem;
+  margin-top: 1rem;
+  position: absolute;
+  margin-left: 1rem;
+}
+</style>
+  <div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
+{{#if data.length}}
+{{#each data}}
+  <div class="card" style="width: 16rem;">
+        <img src="{{img}}" class="card-img-top" alt="..." style="align-self: center;">
+        <div class="card-body">
+          <h5 class="card-title">{{brand}}</h5>
+          <p class="card-text">{{model}} </p>
+          <p>ціна: {{price}}</p>
+          {{!-- <a href="#" class="btn btn-primary">Go somewhere</a> --}}
+          <button class="btn btn-primary" code="{{code}}" id="{{code}}" onclick="bo({{code}})">купити</button>
+        </div>
+      </div>
+  {{/each}}
+{{else}}
+    <p>no data</p>
+{{/if}}
+</div>
+<script src="/nouislider.js"></script>
+<script>
+  
+function splitString(stringToSplit, separator) {
+    const arrayOfStrings = stringToSplit.split(separator);
+    return(arrayOfStrings);
+}
+let naw_panel = document.getElementById('naw_panel');
+naw_panel.insertAdjacentHTML('afterend',
+`<div id='left_panel'>
+  <fieldset><legend>ціна</legend>
+  <div id='left_price'></div>
+    <div id="slider" style="width: 90%;margin-left: 5%;"></div>
+    <div id='right_price'></div>
+  </fieldset>
+  <button onclick='formation()'>Оформити замовлення <i class="icofont-check-alt"></i></button>
+</div>`);
+
+noUiSlider.create(slider, {
+    start: [0, 15000],
+    connect: true,
+    range: {
+        'min': 0,
+        'max': 15000
+    }
+});
+let left_price = document.getElementById('left_price');
+let right_price = document.getElementById('right_price');
+window.onload = function baka(){
+        var elems = document.querySelectorAll('.dropdown-trigger');
+        var dropdowns = document.querySelectorAll('.dropdown-trigger')
+        for (var i = 0; i < dropdowns.length; i++){
+          M.Dropdown.init(dropdowns[i]);
+        }
+    }
+//function formation(){
+//  let inf = slider.noUiSlider.get();
+//  console.log(inf)
+//}
+let touch_area = document.querySelectorAll('.noUi-touch-area'); 
+
+slider.noUiSlider.on('update', ()=>{
+      let inf = slider.noUiSlider.get();
+    left_price.innerHTML = inf[0];
+    right_price.innerHTML = inf[1];
+})
+//for(let elem of touch_area){
+//  elem.addEventListener(
+//}
+
+  function bo(id){
+    let element = document.getElementById(id);
+    let code = element.getAttribute('code');
+    let data = '';
+
+    if(localStorage.getItem('name') !== null){
+      data = JSON.stringify({
+      "code": code,
+      "login": localStorage.getItem('login')
+      });
+      let request = new XMLHttpRequest();
+      request.open("POST", "/buy_bttn", true);   
+      request.setRequestHeader("Content-Type", "application/json");
+      request.addEventListener("load", function () {
+        console.log(request.response)
+      });
+     request.send(data);
+    }else{
+      if(sessionStorage.getItem('корзина') === null || sessionStorage.getItem('корзина') == ""){
+        sessionStorage.setItem('корзина',code+':1,');
+      }else{
+        let inf = sessionStorage.getItem('корзина')
+        data = splitString(inf,',');
+        let new_inf = '';
+        let bool=false;
+        for(let i = 0;i<data.length-1;i++){
+          let data2 = splitString(data[i],':');
+          if(data2[0] == code){
+            data2[1] = parseInt(data2[1])+1; 
+            console.log(data2[1])
+            bool = true;
+          }
+          new_inf+=data2[0]+":"+data2[1]+","
+        }
+        if(!bool){
+          new_inf+=code+":1,";
+        }
+        sessionStorage.setItem('корзина',new_inf);
+      }
+  
+    }
+  
+  }
+ 
+</script>
