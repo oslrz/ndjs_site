@@ -194,16 +194,26 @@ router.post('/insert',jsonParser,(res,req) =>{
 /////////////////////////////////////////////////////////////////// EXCEL FILES ////////////// 
 router.use(express.static(__dirname));
 router.use(multer({dest:"uploads"}).single("xlsx1"));
-router.post("/xlsx", function (req, res, next) { 
+router.post("/xlsx",jsonParser, function (req, res, next) { 
+    let spysok = JSON.parse(req.body.spysok);
+    let tab_name = '';
+    let poryadok = '';
+    for(let keys in spysok){
+        if(keys == "table"){
+            tab_name = spysok[keys];
+        }else{
+            poryadok+=spysok[keys]+",";
+        }
+    }
+    poryadok = poryadok.slice(0,poryadok.length-1);
     let filename = '';
     let filedata = req.file;
     filename = filedata.filename;
-    console.log(filedata);
     if(!filedata){
-        res.send("Помилка при загрузці");
+        console.log("Помилка при загрузці");
     }
     else{
-        res.send("Файл загружено");
+        console.log("Файл загружено");
     }
     var XLSX = require('xlsx');
     var workbook = XLSX.readFile("C:\\Users\\я\\Documents\\vsc\\NODEjS\\uploads\\"+filename);
@@ -245,7 +255,8 @@ router.post("/xlsx", function (req, res, next) {
                 str+="'"+data[i][keys]+"', ";
             }
             str = str.slice(0, str.length-2);
-            client.query("insert into test values("+str+")", (error, response) => {
+            console.log("insert into "+tab_name+"("+poryadok+") values("+str+")");
+            client.query("insert into "+tab_name+"("+poryadok+") values("+str+")", (error, response) => {
                 if (error) {
                     console.error(error);
                     return;
