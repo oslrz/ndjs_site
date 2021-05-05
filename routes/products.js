@@ -1,6 +1,11 @@
 const {Router} = require('express');
+const express = require("express");  
 const router = Router();
 const { Client } = require('pg');
+const app = express(); 
+const jsonParser = express.json();
+
+
 var data = '';
 const client = new Client({
     user: 'postgres',
@@ -34,7 +39,6 @@ router.get('/:id', (req,res) =>{
         password: '000000',
         port: 5432,
     });
-    console.log(req.params.id)
     client.connect().then(() => console.log('connected')).catch(err => console.error('connection error', err.stack));
     return new Promise((resolve,rejected)=>{
         const query = "SELECT * FROM "+req.params.id;
@@ -54,9 +58,10 @@ router.get('/:id', (req,res) =>{
             data
         });
     })
-    
-    
-    
+})
+
+router.post('/table_sort',jsonParser, (res,req)=>{
+    console.log('teeeeext',res.body.table);
 })
 
 

@@ -15,6 +15,7 @@ const coshyk_v2 = require('./routes/routfornologinbskt');       //
 const plsusminusdel = require('./models/plusminusdel');
 const pokypka = require('./routes/pokypka');
 const admin = require('./routes/admin');
+const sort = require('./models/sorting');
 /////////////////////////////////////////////////////
 
 const fs = require('fs');
@@ -49,6 +50,7 @@ app.use('/noLoginBskt',coshyk_v2);
 app.use('/plnmdel', plsusminusdel);
 app.use('/pokypka', pokypka);
 app.use('/admin', admin);
+app.use('/sorting',sort);
 
 app.get("/test", (req,res) =>{
     fs.readFile(
@@ -103,8 +105,6 @@ app.post("/makelogin", jsonParser, function (request, response) {
         response.json(value); // отправляем пришедший ответ обратно
     })
 });
-
-
 
 
 

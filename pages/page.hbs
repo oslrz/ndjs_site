@@ -39,48 +39,115 @@ function splitString(stringToSplit, separator) {
     const arrayOfStrings = stringToSplit.split(separator);
     return(arrayOfStrings);
 }
-let naw_panel = document.getElementById('naw_panel');
-naw_panel.insertAdjacentHTML('afterend',
-`<div id='left_panel'>
-  <fieldset><legend>ціна</legend>
-  <div id='left_price'></div>
-    <div id="slider" style="width: 90%;margin-left: 5%;"></div>
-    <div id='right_price'></div>
-  </fieldset>
-  <button onclick='formation()'>Оформити замовлення <i class="icofont-check-alt"></i></button>
-</div>`);
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
+function left_panel(){
+  let naw_panel = document.getElementById('naw_panel');
+  naw_panel.insertAdjacentHTML('afterend',
+  `<div id='left_panel'>
+    <fieldset><legend>ціна</legend>
+    <div id='left_price'></div>
+      <div id="slider" style="width: 90%;margin-left: 5%;"></div>
+      <div id='right_price'></div>
+    </fieldset>
+    <button onclick='formation()'>Оформити замовлення <i class="icofont-check-alt"></i></button>
+  </div>`);
 
-noUiSlider.create(slider, {
-    start: [0, 15000],
+  let left_price = document.getElementById('left_price');
+  let right_price = document.getElementById('right_price');
+  
+  window.onload = function baka(){
+    var elems = document.querySelectorAll('.dropdown-trigger');
+    var dropdowns = document.querySelectorAll('.dropdown-trigger')
+    for (var i = 0; i < dropdowns.length; i++){
+      M.Dropdown.init(dropdowns[i]);
+    }
+  }
+
+  let get_url = window.location.href;
+  get_url = get_url.split('/');
+  let data =JSON.stringify({
+    "table" : get_url[get_url.length-1]
+  })
+  let lft_panel = new XMLHttpRequest();
+  lft_panel.open("POST", "/sorting/left_panel_sort", true);   
+  lft_panel.setRequestHeader("Content-Type", "application/json");
+  lft_panel.addEventListener("load", function () {
+    let lft_panel_resp = lft_panel.response;
+    console.log(lft_panel_resp)
+    lft_panel_resp = lft_panel_resp.replaceAll("][",",");
+    lft_panel_resp = lft_panel_resp.slice(1,lft_panel_resp.length-1);
+    left_panel_formation(lft_panel_resp);
+  });
+  lft_panel.send(data);
+}
+
+left_panel();
+
+
+function left_panel_formation(data){
+  let lft_inf = data.split(",");
+  let lft_p = document.getElementById('left_panel');
+  let min = 0;
+  let max = 100;
+  for(let i = 0;i<lft_inf.length;i++){
+    let json_obj = JSON.parse(lft_inf[i]);
+    let check = true;
+    
+    for(let key in json_obj){
+      if(key != 'price'){
+        for(let elem of lft_p.childNodes){
+          if(key == elem.id){
+            check = false;
+          }
+        }
+        if(check){
+          let div = document.createElement('div');
+          div.id = key;
+          div.className = 'left_panel_sort';
+          div.innerHTML = `<input class="form-check-input" type="checkbox" value="`+json_obj[key]+`" id="flexCheckDefault"> 
+          <label class="form-check-label" for="flexCheckDefault">`+json_obj[key]+`</label>`;
+          lft_p.appendChild(div)
+        }else{
+          let lft_id = document.getElementById(key);
+          lft_id.innerHTML+=`<input class="form-check-input" type="checkbox" value="`+json_obj[key]+`" id="flexCheckDefault"> 
+          <label class="form-check-label" for="flexCheckDefault">`+json_obj[key]+`</label>`;
+        }
+      }else{
+        let chyslo = json_obj[key];
+        if(chyslo>max){
+          min = max
+          max = chyslo;
+        }else{
+          min = chyslo;
+        }
+      }
+    }
+    
+  }
+  max = max.toString();
+  min = min.toString();
+  console.log(min);
+  console.log(max)
+  noUiSlider.create(slider, {
+    start: [min, max],
     connect: true,
     range: {
-        'min': 0,
-        'max': 15000
+      'min': parseInt(min),
+      'max': parseInt(max)
     }
-});
-let left_price = document.getElementById('left_price');
-let right_price = document.getElementById('right_price');
-window.onload = function baka(){
-        var elems = document.querySelectorAll('.dropdown-trigger');
-        var dropdowns = document.querySelectorAll('.dropdown-trigger')
-        for (var i = 0; i < dropdowns.length; i++){
-          M.Dropdown.init(dropdowns[i]);
-        }
-    }
-//function formation(){
-//  let inf = slider.noUiSlider.get();
-//  console.log(inf)
-//}
-let touch_area = document.querySelectorAll('.noUi-touch-area'); 
+  });
+  let touch_area = document.querySelectorAll('.noUi-touch-area'); 
 
-slider.noUiSlider.on('update', ()=>{
-      let inf = slider.noUiSlider.get();
+  slider.noUiSlider.on('update', ()=>{
+    let inf = slider.noUiSlider.get();
     left_price.innerHTML = inf[0];
     right_price.innerHTML = inf[1];
-})
-//for(let elem of touch_area){
-//  elem.addEventListener(
-//}
+  })
+}
+
 
   function bo(id){
     let element = document.getElementById(id);
@@ -125,5 +192,8 @@ slider.noUiSlider.on('update', ()=>{
     }
   
   }
- 
+function formation(){
+  let lft_panel = document.getElementById('left_panel');
+
+}
 </script>
