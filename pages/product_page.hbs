@@ -1,0 +1,21 @@
+{{#if data.length}}
+{{#each data}}
+<div class="card mb-3" style="max-width: 70rem;">
+  <div class="row g-0">
+    <div class="col-md-4" style="height: auto;width: auto;float: left;">
+      <img src="{{img}}" alt="{{brand}} {{model}}" style="width: 20rem;">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title">{{brand}} {{model}}</h5>
+        <button type="button" class="btn btn-primary btn-lg">Купити <i class="icofont-cart"></i></button>
+        <p class="card-text">{{inf}}</p>
+        <p class="card-text"><small class="text-muted">код товару: {{code}}</small></p>
+      </div>
+    </div>
+  </div>
+</div>
+{{/each}}
+{{else}}
+    <p>ERROR</p>
+{{/if}}

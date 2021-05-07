@@ -13,12 +13,16 @@
   position: absolute;
   margin-left: 1rem;
 }
+.left_panel_sort{
+  border: 1px solid;
+}
+
 </style>
-  <div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
+  <div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3" id='content' style="margin-top: 0.5rem;">
 {{#if data.length}}
 {{#each data}}
   <div class="card" style="width: 16rem;">
-        <img src="{{img}}" class="card-img-top" alt="..." style="align-self: center;">
+        <img src="{{img}}" onclick="pereadr({{code}})" class="card-img-top" alt="..." style="align-self: center;">
         <div class="card-body">
           <h5 class="card-title">{{brand}}</h5>
           <p class="card-text">{{model}} </p>
@@ -34,7 +38,15 @@
 </div>
 <script src="/nouislider.js"></script>
 <script>
-  
+
+function pereadr(code){
+  let get_url = window.location.href;
+  location.href =get_url+'/'+code;
+}
+
+
+
+
 function splitString(stringToSplit, separator) {
     const arrayOfStrings = stringToSplit.split(separator);
     return(arrayOfStrings);
@@ -52,12 +64,11 @@ function left_panel(){
       <div id="slider" style="width: 90%;margin-left: 5%;"></div>
       <div id='right_price'></div>
     </fieldset>
-    <button onclick='formation()'>Оформити замовлення <i class="icofont-check-alt"></i></button>
   </div>`);
 
   let left_price = document.getElementById('left_price');
   let right_price = document.getElementById('right_price');
-  
+
   window.onload = function baka(){
     var elems = document.querySelectorAll('.dropdown-trigger');
     var dropdowns = document.querySelectorAll('.dropdown-trigger')
@@ -76,9 +87,9 @@ function left_panel(){
   lft_panel.setRequestHeader("Content-Type", "application/json");
   lft_panel.addEventListener("load", function () {
     let lft_panel_resp = lft_panel.response;
-    console.log(lft_panel_resp)
     lft_panel_resp = lft_panel_resp.replaceAll("][",",");
     lft_panel_resp = lft_panel_resp.slice(1,lft_panel_resp.length-1);
+    console.log('left panel sort',lft_panel_resp)
     left_panel_formation(lft_panel_resp);
   });
   lft_panel.send(data);
@@ -95,9 +106,19 @@ function left_panel_formation(data){
   for(let i = 0;i<lft_inf.length;i++){
     let json_obj = JSON.parse(lft_inf[i]);
     let check = true;
-    
+    console.log(json_obj);
+
     for(let key in json_obj){
-      if(key != 'price'){
+      if(key == "max" || key == "min"){
+        console.log('key', key)
+        let chyslo = json_obj[key];
+        if(chyslo>max){
+          min = max
+          max = chyslo;
+        }else{
+          min = chyslo;
+        }
+      }else{
         for(let elem of lft_p.childNodes){
           if(key == elem.id){
             check = false;
@@ -115,14 +136,6 @@ function left_panel_formation(data){
           lft_id.innerHTML+=`<input class="form-check-input" type="checkbox" value="`+json_obj[key]+`" id="flexCheckDefault"> 
           <label class="form-check-label" for="flexCheckDefault">`+json_obj[key]+`</label>`;
         }
-      }else{
-        let chyslo = json_obj[key];
-        if(chyslo>max){
-          min = max
-          max = chyslo;
-        }else{
-          min = chyslo;
-        }
       }
     }
     
@@ -130,7 +143,7 @@ function left_panel_formation(data){
   max = max.toString();
   min = min.toString();
   console.log(min);
-  console.log(max)
+  console.log(max);
   noUiSlider.create(slider, {
     start: [min, max],
     connect: true,
@@ -146,6 +159,8 @@ function left_panel_formation(data){
     left_price.innerHTML = inf[0];
     right_price.innerHTML = inf[1];
   })
+  //let lft_p = document.getElementById('left_panel');
+  lft_p.insertAdjacentHTML('beforeend', '<button onclick="formation()">Оформити замовлення <i class="icofont-check-alt"></i></button>')
 }
 
 
@@ -188,12 +203,40 @@ function left_panel_formation(data){
         }
         sessionStorage.setItem('корзина',new_inf);
       }
-  
     }
-  
   }
+console.log('proba',document);
 function formation(){
   let lft_panel = document.getElementById('left_panel');
-
+  let data_obj = {};
+  let get_url = window.location.href;
+  get_url = get_url.split('/');
+  data_obj['table'] = get_url[get_url.length-1];
+  data_obj['max'] = right_price.innerHTML;
+  data_obj['min'] = left_price.innerHTML;
+  for(let elem of lft_panel.childNodes){
+    if(elem.id){
+      console.log(elem.id);
+      let sel = document.getElementById(elem.id);
+      for(let obj of sel.childNodes){
+        if(obj.value && obj.checked){
+          if(data_obj[elem.id]!==undefined){
+            data_obj[elem.id] += ","+obj.value
+          }else{
+            data_obj[elem.id] = obj.value;
+          }
+        }
+      }
+    }
+  }
+  data_obj = JSON.stringify(data_obj);
+  let sorting_ajax = new XMLHttpRequest();
+  sorting_ajax.open("POST", "/sorting/sort", true);   
+  sorting_ajax.setRequestHeader("Content-Type", "application/json");
+  sorting_ajax.addEventListener("load", function () {
+    let content = document.getElementById('content')
+    content.innerHTML = sorting_ajax.response;
+  });
+  sorting_ajax.send(data_obj);
 }
 </script>

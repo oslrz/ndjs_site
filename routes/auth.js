@@ -13,12 +13,11 @@ router.get('/', async (req,res)=>{
     })
 })
 
-router.post('/', (req,res) =>{
+router.post('/',jsonParser, (req,res) =>{
     const login = new pg_Log("password='"+req.body.password+"' and login='"+req.body.login+"'");
     let data ='';
     login.send().then(value =>{
-        data = value;
-        console.log(data);
+        res.send(value);
     });
 });
 

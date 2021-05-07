@@ -20,6 +20,7 @@ class pg_Log{
                     console.error(err);
                     return;
                 }
+                console.log('ressss',res.rows)
                 resolve(res.rows)
             })
         });

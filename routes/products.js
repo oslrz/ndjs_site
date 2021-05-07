@@ -31,6 +31,36 @@ router.get('/', (req,res) =>{
         isTovary:true
     });
 })
+router.get('/:id/:val', (req,res) =>{
+    // console.log(req.params.id)
+    // console.log(req.params.val)
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432,
+    });
+    client.connect().then(()=>{
+        return new Promise((resolve,rejected)=>{
+            client.query("select * from "+req.params.id+" where code='"+req.params.val+"';", (err, res) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                resolve(res.rows);
+            })
+        })
+    }).then(value =>{
+        let data = value;
+        console.log(data)
+        res.render('product_page', {
+            data
+        })
+    })
+
+})
+
 router.get('/:id', (req,res) =>{
     const client = new Client({
         user: 'postgres',
