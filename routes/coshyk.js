@@ -77,6 +77,11 @@ router.post('/', jsonParser,(req,res) =>{
                     }
                     finally {
                         if(dat.rows[0] != undefined){
+                            for(let i = 0;i<dat.rows.length;i++){
+                                let photo = dat.rows[i]['img'];
+                                photo = photo.split(',');
+                                dat.rows[i]['img'] = photo[0];
+                            }
                             let newdat = dat.rows[0];
                             newdat['count'] = basket[keys];
                             string.push(newdat); 

@@ -28,7 +28,7 @@
           <p class="card-text">{{model}} </p>
           <p>ціна: {{price}}</p>
           {{!-- <a href="#" class="btn btn-primary">Go somewhere</a> --}}
-          <button class="btn btn-primary" code="{{code}}" id="{{code}}" onclick="bo({{code}})">купити</button>
+          <button class="btn btn-primary" code="{{code}}" id="{{code}}" onclick="buy({{code}})">купити</button>
         </div>
       </div>
   {{/each}}
@@ -164,7 +164,7 @@ function left_panel_formation(data){
 }
 
 
-  function bo(id){
+  function buy(id){
     let element = document.getElementById(id);
     let code = element.getAttribute('code');
     let data = '';

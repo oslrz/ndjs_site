@@ -96,7 +96,11 @@ router.post('/sort',jsonParser, (req,res)=>{
         }
     }
     sort_str = sort_str.slice(0,sort_str.length-5);
-    sort_str+= " and price<= '"+parseInt(req.body['min'])+"' and price>= '"+parseInt(req.body['max'])+"'";
+    if(sort_str.length == 0){
+        sort_str+= "price>= '"+parseInt(req.body['min'])+"' and price<= '"+parseInt(req.body['max'])+"'";
+    }else{
+        sort_str+= " and price>= '"+parseInt(req.body['min'])+"' and price<= '"+parseInt(req.body['max'])+"'";
+    }
     console.log(sort_str);
     const client = new Client({
         user: 'postgres',
@@ -113,6 +117,11 @@ router.post('/sort',jsonParser, (req,res)=>{
                 if (error) {
                     console.error(error);
                     return;
+                }
+                for(let i = 0;i<response.rows.length;i++){
+                    let photo = response.rows[i]['img'];
+                    photo = photo.split(',');
+                    response.rows[i]['img'] = photo[0];
                 }
                 resolve(response.rows);
             });

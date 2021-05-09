@@ -105,8 +105,54 @@ app.post("/makelogin", jsonParser, function (request, response) {
         response.json(value); // отправляем пришедший ответ обратно
     })
 });
+app.post('/table_names',(req,res)=>{
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432,
+    })
+    client.connect().then(()=>{
+        return new Promise((resolve,reject)=>{
+            client.query(`SELECT * FROM table_names`, (error,response)=>{
+                if(error){
+                    console.error(error);
+                    return;
+                }
+                resolve(response.rows);
+            })
+        }).then(value => {
+            console.log(value)
+            res.send(value);
+        })
+    })
+})
 
+app.post('/prod_photo',jsonParser,(req,res) =>{
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432,
+    })
+    client.connect().then(()=>{
+        return new Promise((resolve,reject)=>{
+            client.query("SELECT img from "+req.body.table_name+" WHERE code= "+req.body.code+";", (error, response) => {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+                resolve(response.rows)
+            })
+        }).then(value=>{
+            let data = value[0]['img'];
+            res.send(data)
+        })
+    })
 
+})
 
 ///////////////////////////////////////////////sms
 // let data = JSON.stringify({

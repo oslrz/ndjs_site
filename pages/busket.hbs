@@ -38,21 +38,9 @@
 {{#if data.length}}
 
 {{#each data}}
-  {{!-- <div class="row g-0">
-    <div class="col-md-4">
-      <img src="{{img}}" alt="...">
-    </div>
-    <div class="col-md-8">
-      <div class="card-body">
-        <h5 class="card-title">{{brand}} {{model}}</h5>
-        <p class="card-text">{{inf}}</p>
-        <p class="card-text"><small class="text-muted">{{price}}</small></p>
-      </div>
-    </div>
-  </div> --}}
   <div class="card" style="flex-direction: row;margin-bottom: 1rem;" id="{{code}}">
     <div class="photo">
-      <img src="{{img}}"  alt="...">
+      <img src="{{img}}"  alt="{{brand}} {{model}}" style="width: 20rem;" style="width: 20rem;">
     </div>
     <div class="card-body">
         <h5 class="card-title">{{brand}} {{model}}</h5>
@@ -76,6 +64,10 @@
 
 </div>
 <script>
+
+
+
+  
 function pererah(){
   let sum = document.getElementById('zahalna_sum');
   let kilk = document.getElementById('zahalna_kilk');
@@ -314,36 +306,36 @@ function fomation(){
   pokyp.style.display = 'block';
   ofoml_bttn.style.display = 'none'
 }
-//function pokypka(){
-//  let tov = document.querySelectorAll('.row');
-//  let doc = '';
-//  let city = document.getElementById('city');
-//  let street = document.getElementById('street');
-//  let house = document.getElementById('house');
-//  for(let elem of tov){
-//    doc+=elem.getAttribute('id')+":"+elem.childNodes[7].childNodes[5].innerHTML+",";
-//  }
-//
-//  let data3 = '';
-//
-//  if(localStorage.getItem('login') !== null){
-//    data3 = JSON.stringify({
-//      "data" : doc,
-//      "adress": city.value+"/"+street.value+"/"+house.value,
-//      "login": localStorage.getItem("login")
-//    })
-//  }else{
-//    data3 = JSON.stringify({
-//      "data" : doc,
-//      "adress": city.value+"/"+street.value+"/"+house.value
-//    })
-//  }
-//  let request = new XMLHttpRequest();
-//  request.open("POST", "/pokypka", true);   
-//  request.setRequestHeader("Content-Type", "application/json");
-//  request.addEventListener("load", function () {
-//    console.log(request.response)
-//  });
-//  request.send(data3);
-//}
+function pokypka(){
+  let tov = document.querySelectorAll('.card');
+  let doc = '';
+  let city = document.querySelector('#city');
+  let street = document.querySelector('#street');
+  let house = document.querySelector('#house');
+  for(let elem of tov){
+    doc+=elem.getAttribute('id')+":"+elem.childNodes[5].childNodes[5].innerHTML+",";
+  }
+
+  let data3 = '';
+
+  if(localStorage.getItem('login') !== null){
+    data3 = JSON.stringify({
+      "data" : doc,
+      "adress": city.value+"/"+street.value+"/"+house.value,
+      "login": localStorage.getItem("login")
+    })
+  }else{
+    data3 = JSON.stringify({
+      "data" : doc,
+      "adress": city.value+"/"+street.value+"/"+house.value
+    })
+  }
+  let request = new XMLHttpRequest();
+  request.open("POST", "/pokypka", true);   
+  request.setRequestHeader("Content-Type", "application/json");
+  request.addEventListener("load", function () {
+    console.log(request.response)
+  });
+  request.send(data3);
+}
 </script>

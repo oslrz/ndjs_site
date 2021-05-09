@@ -34,6 +34,7 @@ router.get('/', (req,res) =>{
 router.get('/:id/:val', (req,res) =>{
     // console.log(req.params.id)
     // console.log(req.params.val)
+    let photo;
     const client = new Client({
         user: 'postgres',
         host: 'localhost',
@@ -48,6 +49,8 @@ router.get('/:id/:val', (req,res) =>{
                     console.error(err);
                     return;
                 }
+                photo = res.rows[0]['img'];
+                photo = photo.split(',');
                 resolve(res.rows);
             })
         })
@@ -55,7 +58,8 @@ router.get('/:id/:val', (req,res) =>{
         let data = value;
         console.log(data)
         res.render('product_page', {
-            data
+            data,
+            photo
         })
     })
 
@@ -77,6 +81,15 @@ router.get('/:id', (req,res) =>{
                 console.error(err);
                 return;
             }
+            //console.log(res.rows.length);
+
+
+            for(let i = 0;i<res.rows.length;i++){
+                let photo = res.rows[i]['img'];
+                photo = photo.split(',');
+                res.rows[i]['img'] = photo[0];
+            }
+
             resolve(res.rows);
             client.end();
         })
@@ -93,6 +106,7 @@ router.get('/:id', (req,res) =>{
 router.post('/table_sort',jsonParser, (res,req)=>{
     console.log('teeeeext',res.body.table);
 })
+
 
 
 module.exports = router; 

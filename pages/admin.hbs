@@ -3,7 +3,7 @@
     <button onclick="inp_tb2()" class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">xlsx</button>
     <button onclick="inp_tb()" class="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">input</button>
     <button onclick="inp_tb1()" class="nav-link" id="v-pills-messages-tab" data-bs-toggle="pill" data-bs-target="#v-pills-messages" type="button" role="tab" aria-controls="v-pills-messages" aria-selected="false">download xlsx</button>
-    <button class="nav-link" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">Settings</button>
+    <button onclick="pokypka()" class="nav-link" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">Pokypka</button>
   </div>
   <div class="tab-content" id="v-pills-tabContent">
     <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
@@ -21,7 +21,9 @@
     <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">
         <h2 id='sel_tab1'>select table</h2>
     </div>
-    <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">...</div>
+    <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
+
+    </div>
   </div>
 </div>
 <script>
@@ -160,28 +162,12 @@ function del_xlsx(){
     console.log('locationnnn')
     let request = new XMLHttpRequest();
     let data='';
-    //var oReq = new XMLHttpRequest();
-//oReq.open("GET", "/table.xlsx", true);
-//oReq.responseType = "arraybuffer";
-
-//oReq.onload = function (oEvent)// {
-//  var arrayBuffer = oReq.response; // Note: not oReq.responseText
-//  if (arrayBuffer) {
-//    var byteArray = new Uint8Array(arrayBuffer);
-//    for (var i = 0; i < byteArray.byteLength; i++) {
-//      console.log(byteArray[i])
-//    }
-//  }
-//};
-
-//oReq.send(null);
-
-request.open("POST", "/admin/delxlsx", true);   
-request.setRequestHeader("Content-Type", "application/json");
-request.addEventListener("load", function () {
-    console.log(request.responseText);
-});
-request.send(data);
+    request.open("POST", "/admin/delxlsx", true);   
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", function () {
+        console.log(request.responseText);
+    });
+    request.send(data);
 }
 
 function inp_tb(){
@@ -244,6 +230,15 @@ function check_(){
     spys.value = JSON.stringify(spysok);
 }
 
+function pokypka(){
+    let pok_list = new XMLHttpRequest();
+    pok_list.open("POST", "/admin/pokypka", true);   
+    pok_list.setRequestHeader("Content-Type", "application/json");
+    pok_list.addEventListener("load", function () {
+        console.log(pok_list.responseText);
+    });
+    pok_list.send();
+}
 </script>
 
 

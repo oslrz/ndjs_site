@@ -2,13 +2,24 @@
 {{#each data}}
 <div class="card mb-3" style="max-width: 70rem;">
   <div class="row g-0">
-    <div class="col-md-4" style="height: auto;width: auto;float: left;">
-      <img src="{{img}}" alt="{{brand}} {{model}}" style="width: 20rem;">
+    <div class="col-md-4" style="height: auto;float: left;">
+      <div id="carouselExampleControlsNoTouching" class="carousel slide" data-bs-touch="false" data-bs-interval="false">
+  <div id='carousel' class="carousel-inner">
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsNoTouching" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
     </div>
     <div class="col-md-8">
       <div class="card-body">
         <h5 class="card-title">{{brand}} {{model}}</h5>
-        <button type="button" class="btn btn-primary btn-lg">Купити <i class="icofont-cart"></i></button>
+        <button type="button" class="btn btn-primary btn-lg"  code="{{code}}" id="{{code}}" onclick="buy({{code}})">Купити <i class="icofont-cart"></i></button>
         <p class="card-text">{{inf}}</p>
         <p class="card-text"><small class="text-muted">код товару: {{code}}</small></p>
       </div>
@@ -19,3 +30,82 @@
 {{else}}
     <p>ERROR</p>
 {{/if}}
+
+<script>
+function buy(id){
+    let element = document.getElementById(id);
+    let code = element.getAttribute('code');
+    let data = '';
+
+    if(localStorage.getItem('name') !== null){
+      data = JSON.stringify({
+      "code": code,
+      "login": localStorage.getItem('login')
+      });
+      let request = new XMLHttpRequest();
+      request.open("POST", "/buy_bttn", true);   
+      request.setRequestHeader("Content-Type", "application/json");
+      request.addEventListener("load", function () {
+        console.log(request.response)
+      });
+     request.send(data);
+    }else{
+      if(sessionStorage.getItem('корзина') === null || sessionStorage.getItem('корзина') == ""){
+        sessionStorage.setItem('корзина',code+':1,');
+      }else{
+        let inf = sessionStorage.getItem('корзина')
+        data = splitString(inf,',');
+        let new_inf = '';
+        let bool=false;
+        for(let i = 0;i<data.length-1;i++){
+          let data2 = splitString(data[i],':');
+          if(data2[0] == code){
+            data2[1] = parseInt(data2[1])+1; 
+            console.log(data2[1])
+            bool = true;
+          }
+          new_inf+=data2[0]+":"+data2[1]+","
+        }
+        if(!bool){
+          new_inf+=code+":1,";
+        }
+        sessionStorage.setItem('корзина',new_inf);
+      }
+    }
+}
+
+(function(){
+  let carousel = document.getElementById('carousel');
+  let get_url = window.location.href;
+  get_url = get_url.split('/');
+  let photo_carousel = new XMLHttpRequest();
+  let data = JSON.stringify({
+    "table_name":get_url[get_url.length-2],
+    "code":get_url[get_url.length-1]
+  })
+  photo_carousel.open("POST", "/prod_photo", true);   
+  photo_carousel.setRequestHeader("Content-Type", "application/json");
+  photo_carousel.addEventListener("load", function () {
+    let photo = photo_carousel.responseText;
+    photo = photo.split(',');
+    if(photo.length<=0){
+      carousel.innerHTML = `<div class="carousel-item active">
+          <img src="`+photo[0]+`" class="d-block w-100" alt="...">
+        </div>`
+    }else{
+      for(let i = 0;i<photo.length;i++){
+        if(i == 0){
+          carousel.innerHTML+= `<div class="carousel-item active">
+          <img src="`+photo[i]+`" class="d-block w-100" alt="...">
+        </div>`
+        }else{
+          carousel.innerHTML+= `<div class="carousel-item">
+          <img src="`+photo[i]+`" class="d-block w-100" alt="...">
+        </div>`
+        }
+      }
+    }
+  });
+  photo_carousel.send(data);
+}())
+</script>

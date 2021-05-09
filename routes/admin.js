@@ -270,4 +270,16 @@ router.post("/xlsx",jsonParser, function (req, res, next) {
 });
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+router.post('/pokypka', (req,res)=>{
+    client.query("select * from pokypka", (error, response) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+        res.send(response.rows);
+    });
+})
+
+
+
 module.exports = router;
