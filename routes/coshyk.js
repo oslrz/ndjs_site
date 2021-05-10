@@ -15,7 +15,7 @@ const client = new Client({
 });
 client.connect();
 
-///////////////////////////////////////GET
+
 router.get('/', (req,res) =>{
     res.render('busket',{
         title: "Кошик",
@@ -24,7 +24,6 @@ router.get('/', (req,res) =>{
 })
 
 
-///////////////////////////////////////////POST
 router.post('/', jsonParser,(req,res) =>{
     let login = req.body.login;
     let basket = '';
@@ -99,73 +98,11 @@ router.post('/', jsonParser,(req,res) =>{
                 isBusket:true,
                 data
             });
+        }).then(()=>{
+            client.end();
         })
-
-
-
-
-        // .then(value=>{
-        //     let hh = '';
-        //     let objekt = value;  
-        //     var dat ='valera';
-        //     var rez ='';
-        //     let string = 1;
-        //     return new Promise((resolve,reject)=>{
-        //         for(let keys in basket){
-        //             for(let i = 0;i<objekt.length;i++){
-        //                 let prom = new Promise((resolv,rejec)=>{
-        //                    client.query("SELECT code, brand, model, img FROM "+objekt[i].table_name+" where code ='"+keys+"';",foo= (error, response) => {
-        //                         if (error) {
-        //                             // console.error(error);
-        //                             console.log(string+"catch")
-        //                             return;
-        //                         }
-        //                         if(response.rows[0] != undefined){
-        //                             dat = JSON.stringify(response.rows[0]);
-        //                            // console.log(dat)
-        //                            console.log(string+"try")
-        //                             resolv(JSON.stringify(response.rows[0]))
-
-                                   
-        //                         }
-        //                     });
-        //                     console.log(dat)
-        //                 })
-                         
-        //                 // prom.then(value=>{
-        //                 //     dat+=value;
-        //                 //     return dat;
-        //                 prom.then(console.log(prom))
-
-        //                  console.log(prom)
-        //                 console.log(dat)
-        //                 string++;
-        //                 console.log(string+"v")
-        //             }
-        //             console.log(string+"z");
-        //         }
-        //         console.log(hh);
-        //         console.log('кінець')
-        //         resolve("purushko")
-        //     }).then(value=>{
-        //         console.log('-----------------------');
-        //         console.log(value);
-        //     })
-            
-            
-        // })
     })
 })
-
-
-
-
-
-
-
-
-
-       
     
 
 module.exports = router;

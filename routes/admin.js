@@ -13,15 +13,6 @@ const {Router} = require('express'),
 
 const jsonParser = express.json();
 
-const client = new Client({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'postgres',
-    password: '000000',
-    port: 5432
-});
-client.connect();
-
 
 router.get('/', (req,res) =>{
     res.render('admin', {});
@@ -29,19 +20,39 @@ router.get('/', (req,res) =>{
 
 
 router.post('/tabs',jsonParser,(res,req) =>{
-    client.query("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');", (error, response) => {
-        if (error) {
-            console.error(error);
-            return;
-        }else{
-            req.send(response.rows);
-        }
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432
     });
+    client.connect().then(()=>{
+        client.query("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');", (error, response) => {
+            if (error) {
+                console.error(error);
+                return;
+            }else{
+                req.send(response.rows);
+            }
+        });
+    }).then(()=>{
+        client.end();
+    })
+    
 })
 
 
 router.post('/jsontoxlsx',jsonParser,(res,req)=>{
-    let data;
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432
+    });
+    client.connect().then(()=>{
+        let data;
     let table_name = res.body.content;
     return new Promise((resolve,rejects) =>{
         client.query("SELECT * from "+table_name+";", (error, response) => {
@@ -111,18 +122,33 @@ router.post('/jsontoxlsx',jsonParser,(res,req)=>{
         wb.write('public\\table.xlsx');
     })
     req.send('done');
+    }).then(()=>{
+        client.end();
+    })
+    
 })
 
 
 router.post('/polyatabl',jsonParser,(res,req) =>{
-    client.query("SELECT column_name FROM information_schema.columns WHERE table_schema='public' and table_name='"+res.body.content+"'", (error, response) => {
-        if (error) {
-            console.error(error);
-            return;
-        }else{
-            req.send(response.rows);
-        }
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432
     });
+    client.connect().then(()=>{
+        client.query("SELECT column_name FROM information_schema.columns WHERE table_schema='public' and table_name='"+res.body.content+"'", (error, response) => {
+            if (error) {
+                console.error(error);
+                return;
+            }else{
+                req.send(response.rows);
+            }
+        });
+    }).then(()=>{
+        client.end();
+    })
 })
 
 
@@ -154,14 +180,25 @@ router.post('/insert',jsonParser,(res,req) =>{
     }
     polya = polya.slice(0,-1);
     danni = danni.slice(0,-2);
-    client.query("insert into "+table_name+"("+polya+") values("+danni+")", (error, response) => {
-        if (error) {
-            console.error(error);
-            return;
-        }else{
-            console.log('done!')
-        }
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432
     });
+    client.connect().then(()=>{
+        client.query("insert into "+table_name+"("+polya+") values("+danni+")", (error, response) => {
+            if (error) {
+                console.error(error);
+                return;
+            }else{
+                console.log('done!')
+            }
+        });
+    }).then(()=>{
+        client.end();
+    })
 })
 
 
@@ -170,7 +207,15 @@ router.post('/insert',jsonParser,(res,req) =>{
 router.use(express.static(__dirname));
 router.use(multer({dest:"uploads"}).single("xlsx1"));
 router.post("/xlsx",jsonParser, function (req, res, next) { 
-    let spysok = JSON.parse(req.body.spysok);
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432
+    });
+    client.connect().then(()=>{
+        let spysok = JSON.parse(req.body.spysok);
     let tab_name = '';
     let poryadok = '';
     for(let keys in spysok){
@@ -242,40 +287,66 @@ router.post("/xlsx",jsonParser, function (req, res, next) {
             str='';
         }
     });
+    }).then(()=>{
+        client.end();
+    })
 });
-/////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 router.post('/customer_pokypka', (req,res)=>{
-    client.query("select name, username, login from users", (error, response) => {
-        if (error) {
-            console.error(error);
-            return;
-        }
-        res.send(response.rows);
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432
     });
-})
-
-
-router.post('/select_user',jsonParser,(req,res)=>{
-    if(req.body.username == 'all'){
-        client.query("select * from pokypka;", (error, resp) => {
-            if (error) {
-                console.error(error);
-                return;
-            }
-            console.log(resp.rows)
-            res.send(resp.rows);
-        });
-    }else{
-        client.query("select * from pokypka where client_id='"+req.body.username+"';", (error, response) => {
+    client.connect().then(()=>{
+        client.query("select name, username, login from users", (error, response) => {
             if (error) {
                 console.error(error);
                 return;
             }
             res.send(response.rows);
         });
-    }
+    }).then(()=>{
+        client.end();
+    })
+    
+})
+
+
+router.post('/select_user',jsonParser,(req,res)=>{
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432
+    });
+    client.connect().then(()=>{
+        if(req.body.username == 'all'){
+            client.query("select * from pokypka;", (error, resp) => {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+                console.log(resp.rows)
+                res.send(resp.rows);
+            });
+        }else{
+            client.query("select * from pokypka where client_id='"+req.body.username+"';", (error, response) => {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+                res.send(response.rows);
+            });
+        }
+    }).then(()=>{
+        client.end();
+    })
 })
 
 

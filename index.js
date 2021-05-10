@@ -4,8 +4,7 @@ const express = require("express"),
     homeRoutes = require('./routes/home'),                
     regRoutes = require('./routes/auth'),            
     salesRoutes = require('./routes/sales'),       
-    aboutRoutes = require('./routes/about'),     
-    testRoutes = require('./routes/test'),       
+    aboutRoutes = require('./routes/about'),           
     pageRouter = require('./routes/products'),   
     ff = require('./public/authorization');      
     busket = require('./models/busket'),         
@@ -37,8 +36,7 @@ app.use(express.urlencoded({extended: true}));
 app.use('/',homeRoutes);            
 app.use('/auth',regRoutes);         
 app.use('/sales',salesRoutes);      
-app.use('/about',aboutRoutes);      
-app.use('/test',testRoutes);        
+app.use('/about',aboutRoutes);             
 app.use('/products',pageRouter);    
 app.use('/buy_bttn',busket);
 app.use('/vlad',ff);

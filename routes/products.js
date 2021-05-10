@@ -1,36 +1,13 @@
-const {Router} = require('express');
-const express = require("express");  
-const router = Router();
-const { Client } = require('pg');
-const app = express(); 
-const jsonParser = express.json();
+const {Router} = require('express'),
+    express = require("express"),  
+    router = Router(),
+    { Client } = require('pg'),
+    app = express(), 
+    jsonParser = express.json()
 
 
 var data = '';
-const client = new Client({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'postgres',
-    password: '000000',
-    port: 5432,
-});
-client.connect().then(() => console.log('connected')).catch(err => console.error('connection error', err.stack));
-const query = "SELECT * FROM mobile_phones;";
-client.query(query, (err, res) => {
-    if (err) {
-        console.error(err);
-        return;
-    }
-    // console.log('успіх!');
-    data = res.rows;
-    client.end()
-});
-router.get('/', (req,res) =>{
-    res.render('page', {
-        title:"Товари",
-        isTovary:true
-    });
-})
+
 router.get('/:id/:val', (req,res) =>{
     // console.log(req.params.id)
     // console.log(req.params.val)
@@ -61,6 +38,8 @@ router.get('/:id/:val', (req,res) =>{
             data,
             photo
         })
+    }).then(()=>{
+        client.end();
     })
 
 })
@@ -73,7 +52,7 @@ router.get('/:id', (req,res) =>{
         password: '000000',
         port: 5432,
     });
-    client.connect().then(() => console.log('connected')).catch(err => console.error('connection error', err.stack));
+    client.connect();
     return new Promise((resolve,rejected)=>{
         const query = "SELECT * FROM "+req.params.id;
         client.query(query, (err, res) => {
@@ -100,6 +79,8 @@ router.get('/:id', (req,res) =>{
             isTovary:true,
             data
         });
+    }).then(()=>{
+        client.end();
     })
 })
 

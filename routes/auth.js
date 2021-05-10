@@ -1,9 +1,9 @@
-const {Router} = require('express');
-const router = Router();
-const express = require("express");  
-const Reg = require('../models/pg_registr.js');
-const pg_Log = require('../models/pg_login.js');
-const jsonParser = express.json();
+const {Router} = require('express'),
+    router = Router(),
+    express = require("express"),  
+    Reg = require('../models/pg_registr.js'),
+    pg_Log = require('../models/pg_login.js'),
+    jsonParser = express.json()
 
 
 router.get('/', async (req,res)=>{
@@ -13,6 +13,7 @@ router.get('/', async (req,res)=>{
     })
 })
 
+
 router.post('/',jsonParser, (req,res) =>{
     const login = new pg_Log("password='"+req.body.password+"' and login='"+req.body.login+"'");
     let data ='';
@@ -20,6 +21,7 @@ router.post('/',jsonParser, (req,res) =>{
         res.send(value);
     });
 });
+
 
 router.post('/registration',jsonParser,(req,res)=>{
     const vidpr = new Reg("'"+req.body.name+"', "+"'"+req.body.surname+"', "+"'"+req.body.phone_number+"', "+"'"+req.body.password+"', "+"'"+req.body.email+"'",req.body.adress);

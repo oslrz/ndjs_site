@@ -70,9 +70,9 @@ router.post('/left_panel_sort', jsonParser, (res,req)=>{
             })
         })
         
-    });
-
-    
+    }).then(()=>{
+        client.end();
+    })
 })
 router.post('/sort',jsonParser, (req,res)=>{
     console.log(req.body)
