@@ -232,13 +232,62 @@ function check_(){
 
 function pokypka(){
     let pok_list = new XMLHttpRequest();
-    pok_list.open("POST", "/admin/pokypka", true);   
+    pok_list.open("POST", "/admin/customer_pokypka", true);   
     pok_list.setRequestHeader("Content-Type", "application/json");
     pok_list.addEventListener("load", function () {
-        console.log(pok_list.responseText);
+        let tabinner = document.getElementById('v-pills-settings');
+        let data = pok_list.responseText;
+        tabinner.innerHTML += '<select id="select_user" class="form-select form-select-sm" aria-label=".form-select-sm example"><option value="all">All</select>';
+        let select_user = document.getElementById('select_user');
+        data = JSON.parse(data);
+        for(let elem of data){
+            select_user.innerHTML+='<option value="'+elem.login+'">'+elem.name+" "+elem.username+'</option>';
+        }
+        tabinner.insertAdjacentHTML('beforeend','<button class="btn btn-primary" style="margin-top: 1rem;" onclick="select_user()">Вибрати</button>')
     });
     pok_list.send();
 }
+function select_user(){
+    let data_form = document.getElementById('select_user');
+    let data = JSON.stringify({
+        'username' : data_form.value
+    })
+    console.log(data)
+    let select_user = new XMLHttpRequest();
+    select_user.open("POST", "/admin/select_user", true);   
+    select_user.setRequestHeader("Content-Type", "application/json");
+    select_user.addEventListener("load", function () {
+        console.log(select_user.responseText)
+        let tabinner = document.getElementById('v-pills-settings');
+        let stroka = '<table id="table_inf" class="table"><thead><tr>';
+        //let table_inf = document.getElementById(table_inf);
+        let inform = JSON.parse(select_user.responseText)
+        for(let keys in inform[0]){
+            stroka+= '<th scope="col">'+keys+'</th>';
+        }
+        stroka += '</thead><tbody>'
+        for(let elem of inform){
+            stroka+='<tr>';
+            stroka+=`<th scope="row">`+elem.id_pokypku+`</th>
+                    <td>`+elem.products+`</td>
+                    <td>`+elem.client_id+`</td>
+                    <td>`+elem.adress+`</td>
+                    <td>`+elem.date+`</td>`
+            stroka+='</tr>';
+        }
+        stroka+='</tbody></table>'
+        console.log(tabinner.childNodes.length)
+        if(tabinner.childNodes.length<=3){
+            tabinner.insertAdjacentHTML('beforeend', stroka);
+        }else{
+            let table_node = document.getElementById('table_inf');
+            table_node.remove();
+            tabinner.insertAdjacentHTML('beforeend', stroka);
+        }
+    });
+    select_user.send(data)
+}
+
 </script>
 
 

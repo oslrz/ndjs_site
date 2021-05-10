@@ -277,21 +277,21 @@ else{
           let naw_panel = document.getElementById('naw_panel')
           naw_panel.insertAdjacentHTML('afterend',
           `<div id='right_panel'>
-            <fieldset id="oform">
+            <fieldset id="oform" style="margin: 1rem;">
               <legend>Блок 1</legend>
               <h4>Загальна сума товарів:</h4>
               <p id='zahalna_sum' style='text-align: center;'>0</p>
               <h4>Кількість товару:</h4>
               <p style='text-align: center;' id='zahalna_kilk'>0</p>
-              <button id="form_bttn" onclick='fomation()'>Оформити замовлення <i class="icofont-check-alt"></i></button>
+              <button id="form_bttn" onclick='fomation()' style="margin-top: 1rem;">Оформити замовлення <i class="icofont-check-alt"></i></button>
             </fieldset>
             
-            <fieldset id="pokup" style="display: none;">
+            <fieldset id="pokup" style="display: none;margin: 1rem;">
               <legend>Адреса доставки</legend>
               <input id='city' type='text' placeholder='місто/село'>
               <input id='street' type='text' placeholder='вулиця'>
               <input id='house' type='text' placeholder='№ будинку'><br>
-              <button onclick='pokypka()'>купити <i class="icofont-cart"></i></button>
+              <button onclick='pokypka()' style="margin-top: 1rem;">купити <i class="icofont-cart"></i></button>
             </fieldset>
           </div>`);
           pererah();

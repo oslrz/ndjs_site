@@ -1,48 +1,45 @@
-// Require //////////////////////////////////////////
-const express = require("express");                //                 
-const exphbs = require("express-handlebars");      //         
-const app = express();                             //         
-const homeRoutes = require('./routes/home');       //         
-const regRoutes = require('./routes/auth');        //     
-const salesRoutes = require('./routes/sales');     //   
-const aboutRoutes = require('./routes/about');     //
-const testRoutes = require('./routes/test');       //
-const pageRouter = require('./routes/products');   //
-const ff = require('./public/authorization');      //
-const busket = require('./models/busket');         //
-const coshyk = require('./routes/coshyk');
-const coshyk_v2 = require('./routes/routfornologinbskt');       //
-const plsusminusdel = require('./models/plusminusdel');
-const pokypka = require('./routes/pokypka');
-const admin = require('./routes/admin');
-const sort = require('./models/sorting');
-/////////////////////////////////////////////////////
-
-const fs = require('fs');
-const path = require('path');
-
-
-// Налаштування Handlebars /////////
-const hbs = exphbs.create({       //
-    defaultLayout:"main",         //
-    extname:"hbs"                 //   
-});                               //            
-app.engine("hbs",hbs.engine);     //
-app.set("view engine", "hbs");    //
-app.set("views", "pages");        //
-app.use(express.static('public'));//
-app.use(express.urlencoded({extended: true})); //
-////////////////////////////////////
+const express = require("express"),                    
+    exphbs = require("express-handlebars"),             
+    app = express(),                                     
+    homeRoutes = require('./routes/home'),                
+    regRoutes = require('./routes/auth'),            
+    salesRoutes = require('./routes/sales'),       
+    aboutRoutes = require('./routes/about'),     
+    testRoutes = require('./routes/test'),       
+    pageRouter = require('./routes/products'),   
+    ff = require('./public/authorization');      
+    busket = require('./models/busket'),         
+    coshyk = require('./routes/coshyk'),
+    coshyk_v2 = require('./routes/routfornologinbskt'),       
+    plsusminusdel = require('./models/plusminusdel'),
+    pokypka = require('./routes/pokypka'),
+    admin = require('./routes/admin'),
+    sort = require('./models/sorting'),
+    fs = require('fs'),
+    path = require('path'),
+    { Client } = require('pg'),
+    usersRouter = require('./routes/users')
 
 
-// Routes ////////////////////////////
-app.use('/',homeRoutes);            //
-app.use('/auth',regRoutes);         //
-app.use('/sales',salesRoutes);      //
-app.use('/about',aboutRoutes);      // 
-app.use('/test',testRoutes);        //
-app.use('/products',pageRouter);    //
-//////////////////////////////////////
+
+const hbs = exphbs.create({       
+    defaultLayout:"main",         
+    extname:"hbs"                  
+});                                         
+app.engine("hbs",hbs.engine);     
+app.set("view engine", "hbs");    
+app.set("views", "pages");        
+app.use(express.static('public'));
+app.use(express.urlencoded({extended: true}));
+
+
+
+app.use('/',homeRoutes);            
+app.use('/auth',regRoutes);         
+app.use('/sales',salesRoutes);      
+app.use('/about',aboutRoutes);      
+app.use('/test',testRoutes);        
+app.use('/products',pageRouter);    
 app.use('/buy_bttn',busket);
 app.use('/vlad',ff);
 app.use('/bskt',coshyk);
@@ -51,31 +48,21 @@ app.use('/plnmdel', plsusminusdel);
 app.use('/pokypka', pokypka);
 app.use('/admin', admin);
 app.use('/sorting',sort);
+app.use('/user', usersRouter);
 
-app.get("/test", (req,res) =>{
-    fs.readFile(
-        path.join(__dirname,'pages','test.html'),
-        'utf-8',
-        (err, content) =>{
-            if(err){
-                throw err
-            }
-            res.end(content);
-        }
-        );
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`server is runing on port ${PORT}`);
 });
+
+
 
 app.get('/public/table.xlsx',function(req,res){
     res.download('C:\\Users\\я\\Documents\\vsc\\NODEjS\\public\\table.xlsx','table.xlsx');
 })
 
 const jsonParser = express.json();
-const { Client } = require('pg');
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`server is runing on port ${PORT}`);
-});
 
 app.post("/makelogin", jsonParser, function (request, response) {
     const client = new Client({
@@ -151,7 +138,6 @@ app.post('/prod_photo',jsonParser,(req,res) =>{
             res.send(data)
         })
     })
-
 })
 
 ///////////////////////////////////////////////sms

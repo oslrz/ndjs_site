@@ -6,7 +6,7 @@
   margin-left: 30rem;
 }
 #left_panel{
-  background-color: #758c70;
+  background-color: #758c70 !important;
   width: 23rem;
   height: 30rem;
   margin-top: 1rem;
@@ -15,6 +15,7 @@
 }
 .left_panel_sort{
   border: 1px solid;
+  margin: 1rem;
 }
 
 </style>
@@ -58,10 +59,10 @@ String.prototype.replaceAll = function(search, replacement) {
 function left_panel(){
   let naw_panel = document.getElementById('naw_panel');
   naw_panel.insertAdjacentHTML('afterend',
-  `<div id='left_panel'>
+  `<div id='left_panel' class="shadow p-3 mb-5 bg-body rounded" style="height: max-content;">
     <fieldset><legend>ціна</legend>
     <div id='left_price'></div>
-      <div id="slider" style="width: 90%;margin-left: 5%;"></div>
+      <div id="slider" style="width: 60%;margin-left: 20%;"></div>
       <div id='right_price'></div>
     </fieldset>
   </div>`);
@@ -129,12 +130,12 @@ function left_panel_formation(data){
           div.id = key;
           div.className = 'left_panel_sort';
           div.innerHTML = `<input class="form-check-input" type="checkbox" value="`+json_obj[key]+`" id="flexCheckDefault"> 
-          <label class="form-check-label" for="flexCheckDefault">`+json_obj[key]+`</label>`;
+          <label class="form-check-label" for="flexCheckDefault">`+json_obj[key]+`</label><br>`;
           lft_p.appendChild(div)
         }else{
           let lft_id = document.getElementById(key);
           lft_id.innerHTML+=`<input class="form-check-input" type="checkbox" value="`+json_obj[key]+`" id="flexCheckDefault"> 
-          <label class="form-check-label" for="flexCheckDefault">`+json_obj[key]+`</label>`;
+          <label class="form-check-label" for="flexCheckDefault">`+json_obj[key]+`</label><br>`;
         }
       }
     }
@@ -156,11 +157,11 @@ function left_panel_formation(data){
 
   slider.noUiSlider.on('update', ()=>{
     let inf = slider.noUiSlider.get();
-    left_price.innerHTML = inf[0];
-    right_price.innerHTML = inf[1];
+    left_price.innerHTML = parseInt(inf[0]);
+    right_price.innerHTML = parseInt(inf[1]);
   })
   //let lft_p = document.getElementById('left_panel');
-  lft_p.insertAdjacentHTML('beforeend', '<button onclick="formation()">Оформити замовлення <i class="icofont-check-alt"></i></button>')
+  lft_p.insertAdjacentHTML('beforeend', '<button style="margin: 1rem;" onclick="formation()">Сортувати<i class="icofont-loop"></i></button>')
 }
 
 

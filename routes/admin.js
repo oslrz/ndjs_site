@@ -1,15 +1,15 @@
-const {Router} = require('express');
-const router = Router();
+const {Router} = require('express'),
+    router = Router(),
+    path = require('path'),
+    bodyParser = require('body-parser'),
+    multer = require('multer'),
+    { Client } = require('pg'),
+    express = require("express"),  
+    { resolve } = require('path'),
+    { rejects } = require('assert'),
+    e = require('express'),
+    app = express()
 
-const path = require('path');
-const bodyParser = require('body-parser');
-const multer = require('multer');
-
-const { Client } = require('pg');
-const express = require("express");  
-const { resolve } = require('path');
-const { rejects } = require('assert');
-const app = express(); 
 
 const jsonParser = express.json();
 
@@ -24,9 +24,7 @@ client.connect();
 
 
 router.get('/', (req,res) =>{
-    res.render('admin', {
-
-    });
+    res.render('admin', {});
 })
 
 
@@ -40,6 +38,7 @@ router.post('/tabs',jsonParser,(res,req) =>{
         }
     });
 })
+
 
 router.post('/jsontoxlsx',jsonParser,(res,req)=>{
     let data;
@@ -70,7 +69,6 @@ router.post('/jsontoxlsx',jsonParser,(res,req)=>{
         const xl = require('excel4node');
         const wb = new xl.Workbook();
         const ws = wb.addWorksheet('Worksheet Name');
-
         // const data = [
         //  {
         //     "name":"Shadab Shaikh",
@@ -132,27 +130,6 @@ router.post('/delxlsx',jsonParser,(res,req) =>{
     var path = require('path');
     var mime = require('mime');
     var fs = require('fs');
-    // var file = 'table.xlsx';
-
-    // var filename = path.basename(file);
-    // var mimetype = mime.lookup(file);
-
-    // res.setHeader('Content-disposition', 'attachment; filename=' + filename);
-    // res.setHeader('Content-type', mimetype);
-
-    // var filestream = fs.createReadStream(file);
-    // filestream.pipe(res);
-    // fs.readFile(filePath1, function(error, data){
-              
-    //     if(error){
-                  
-    //         response.statusCode = 404;
-    //         response.end("Resourse not found!");
-    //     }   
-    //     else{
-    //         req.send(data);
-    //     }
-    // });
     var filePath = 'public\\table.xlsx'; 
     fs.unlinkSync(filePath);
 })
@@ -177,8 +154,6 @@ router.post('/insert',jsonParser,(res,req) =>{
     }
     polya = polya.slice(0,-1);
     danni = danni.slice(0,-2);
-    // console.log("polya" , polya);
-    // console.log("data", danni);
     client.query("insert into "+table_name+"("+polya+") values("+danni+")", (error, response) => {
         if (error) {
             console.error(error);
@@ -270,14 +245,37 @@ router.post("/xlsx",jsonParser, function (req, res, next) {
 });
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-router.post('/pokypka', (req,res)=>{
-    client.query("select * from pokypka", (error, response) => {
+
+router.post('/customer_pokypka', (req,res)=>{
+    client.query("select name, username, login from users", (error, response) => {
         if (error) {
             console.error(error);
             return;
         }
         res.send(response.rows);
     });
+})
+
+
+router.post('/select_user',jsonParser,(req,res)=>{
+    if(req.body.username == 'all'){
+        client.query("select * from pokypka;", (error, resp) => {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            console.log(resp.rows)
+            res.send(resp.rows);
+        });
+    }else{
+        client.query("select * from pokypka where client_id='"+req.body.username+"';", (error, response) => {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            res.send(response.rows);
+        });
+    }
 })
 
 
