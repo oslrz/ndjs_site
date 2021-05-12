@@ -23,6 +23,12 @@
 {{/if}}
 
 <script>
+    function splitString(stringToSplit, separator) {
+        const arrayOfStrings = stringToSplit.split(separator);
+        return(arrayOfStrings);
+    } 
+
+
     let table = document.getElementById('tablychka');
     (function(){
         let stroka = '<table class="table"><thead>'
@@ -33,18 +39,40 @@
         request.setRequestHeader("Content-Type", "application/json");
         request.addEventListener("load", function () {
             let inform = JSON.parse(request.responseText)
+            console.log(inform)
             for(let keys in inform[0]){
                 stroka+= '<th scope="col">'+keys+'</th>';
             }
             stroka += '</thead><tbody>'
             for(let elem of inform){
-                stroka+='<tr>';
-                stroka+=`<th scope="row">`+elem.id_pokypku+`</th>
-                        <td>`+elem.products+`</td>
+                let products_list = elem.products;
+                let k = 0
+                products_list = splitString(products_list,","); //  тут лишній елемент
+                console.log(products_list)
+                for(let pos of products_list){
+                    if(pos != ""){
+                        if(k==0){
+                        stroka+='<tr>';
+                    stroka+=`<th scope="row">`+elem.id_pokypku+`</th>
+                        <td>`+pos+`</td>
                         <td>`+elem.client_id+`</td>
-                        <td>`+elem.adress+`</td>
-                        <td>`+elem.date+`</td>`
-                stroka+='</tr>';
+                       <td>`+elem.adress+`</td>
+                       <td>`+elem.date+`</td>`
+                    stroka+='</tr>';
+                    }else{
+                        stroka+='<tr>';
+                        stroka+=`<th scope="row"></th>
+                        <td>`+pos+`</td>
+                        <td>`+elem.client_id+`</td>
+                       <td>`+elem.adress+`</td>
+                       <td></td>`
+                        stroka+='</tr>';
+                    }
+                    k++
+                    }
+                    
+                }
+                k=0;
             }
             stroka+='</tbody></table>';
             table.innerHTML = stroka;

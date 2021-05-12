@@ -108,7 +108,7 @@ app.post('/table_names',(req,res)=>{
                 resolve(response.rows);
             })
         }).then(value => {
-            console.log(value)
+            // console.log(value)
             res.send(value);
         })
     })
@@ -137,6 +137,35 @@ app.post('/prod_photo',jsonParser,(req,res) =>{
         })
     })
 })
+
+
+
+// var convert = require('xml-js');
+// var xml = require('fs').readFileSync('./import0_1.xml', 'utf8');
+// var options = {ignoreComment: true, alwaysChildren: true};
+// var result = convert.xml2js(xml, options); // or convert.xml2json(xml, options)
+// // console.log(result.elements[0].elements[1].elements[4].elements[0].elements[2]);
+// let c = 0;
+// for(let elem of result.elements[0].elements[1].elements[4].elements){
+//     elem.elements.forEach(elements =>{
+//         if(elements.name == 'Наименование'){
+//             console.log(elements.elements[0].text)
+//             c++
+//         }
+//     })
+// }
+// console.log(c);
+
+
+app.get('/c1xlsx_get',(req,res)=>{
+    res.send('geeeet');
+})
+app.post('/c1xlsx_post',(req,res)=>{
+    res.send('pooooost');
+})
+
+
+
 
 ///////////////////////////////////////////////sms
 // let data = JSON.stringify({

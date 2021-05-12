@@ -12,7 +12,7 @@ const jsonParser = express.json();
 function splitString(stringToSplit, separator) {
     const arrayOfStrings = stringToSplit.split(separator);
     return(arrayOfStrings);
-}
+} 
 
 
 
@@ -46,6 +46,45 @@ router.get('/:id', (req,res) =>{
     })
 })
 
+async function perebor(products,objekt){
+    let string = '';
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: '000000',
+        port: 5432,
+    });
+    client.connect()
+    let dat;
+    for(let i = 0;i<products.length-1;i++){
+        if(products[i] === undefined){
+            continue;
+        }else{
+            let keys = splitString(products[i],':');
+            let val = keys[1];
+            keys = keys[0];
+            //console.log(keys)
+            for(let j = 0;j<objekt.length;j++){
+                try{
+                    dat = await  (client.query("SELECT * FROM "+objekt[j].table_name+" where code ='"+keys+"';"))
+                }
+                catch ( err ) {
+                    // console.log(err)
+                }
+                finally {
+                    if(dat.rows[0] != undefined){
+                        string+=dat.rows[0].brand +" "+ dat.rows[0].model+",";
+                        break;
+                    }
+                }
+            }
+            
+        }
+    }
+    return(string);
+}
+
 
 router.post('/select_user/:id',jsonParser,(req,res)=>{
     let data;
@@ -65,58 +104,36 @@ router.post('/select_user/:id',jsonParser,(req,res)=>{
             data = response.rows;
             //console.log("Довжина", data.length)
             let dat;
-            for(let i = 0;i<data.length;i++){
-                let products = data[i].products;
-                products = splitString(products,',')
-                    function main(){
-                        return new Promise((resolve, reject) =>{
-                            client.query("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');", (error, response) => {
-                                if (error) {
-                                    console.error(error);
-                                    return;
-                                }
-                                resolve(response.rows);
-                            });
-                        });
+            return new Promise((resolve, reject) =>{
+                client.query("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');", (error, response) => {
+                    if (error) {
+                        console.error(error);
+                        return;
                     }
-                    main().then(async value=>{
-                        let objekt = value;  
-                        let string = [];
-                        for(let j = 0;j<products.length-1;j++){
-                            let keys = splitString(products[j],':')
-                            let val = keys[1];
-                            keys = keys[0];
-                            for(let j = 0;j<objekt.length;j++){
-                                try{
-                                    dat = await  (client.query("SELECT brand, model FROM "+objekt[j].table_name+" where code ='"+keys+"';"))
-                                    
-                                }
-                                catch ( err ) {
-                                    //console.log(err)
-                                }
-                                finally {
-                                    if(dat.rows[0] != undefined){
-                                        let newdat = dat.rows[0];
-                                        string.push(newdat);
-                                        break;
-                                    }
-                                }
-                            } 
-                        }
-                        return(string);
-                    }).then(value=>{
-                        data[i].products = value;
-                        //console.log(data)
-                    })
-                
-            }
-            res.send(response.rows);
+                    resolve(response.rows);
+                });
+            }).then(async value =>{
+                let objekt = value;  
+                for(let i = 0;i<data.length;i++){
+                    let products = data[i].products;
+                    products = splitString(products,',')
+                    try{
+                        data[i].products =await perebor(products,objekt);
+                    }
+                    catch(err){
+                        console.error(err)
+                    }
+                    finally{
+                        //console.log(data[i])
+                    }
+                }
+            }).then(()=>{
+                let sender = JSON.stringify(data);
+                res.send(sender);
+            })
         });
-    }).then(()=>{
-        console.log(data);
     })
 })
-
 
 router.post('/change_data',jsonParser,(req,res)=>{
     let data  = req.body
