@@ -23,8 +23,6 @@ class pg_Log{
                 console.log('ressss',res.rows)
                 resolve(res.rows)
             })
-        }).then(()=>{
-            client.end();
         })
     }
 }

@@ -8,18 +8,20 @@ const {Router} = require('express'),
 
 var data = '';
 
+const client = new Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'postgres',
+    password: '000000',
+    port: 5432,
+});
+client.connect();
+
 router.get('/:id/:val', (req,res) =>{
     // console.log(req.params.id)
     // console.log(req.params.val)
     let photo;
-    const client = new Client({
-        user: 'postgres',
-        host: 'localhost',
-        database: 'postgres',
-        password: '000000',
-        port: 5432,
-    });
-    client.connect().then(()=>{
+    
         return new Promise((resolve,rejected)=>{
             client.query("select * from "+req.params.id+" where code='"+req.params.val+"';", (err, res) => {
                 if (err) {
@@ -30,29 +32,18 @@ router.get('/:id/:val', (req,res) =>{
                 photo = photo.split(',');
                 resolve(res.rows);
             })
-        })
-    }).then(value =>{
+        }).then(value =>{
         let data = value;
         console.log(data)
         res.render('product_page', {
             data,
             photo
         })
-    }).then(()=>{
-        client.end();
     })
 
 })
 
 router.get('/:id', (req,res) =>{
-    const client = new Client({
-        user: 'postgres',
-        host: 'localhost',
-        database: 'postgres',
-        password: '000000',
-        port: 5432,
-    });
-    client.connect();
     return new Promise((resolve,rejected)=>{
         const query = "SELECT * FROM "+req.params.id;
         client.query(query, (err, res) => {
@@ -70,7 +61,7 @@ router.get('/:id', (req,res) =>{
             }
 
             resolve(res.rows);
-            client.end();
+            
         })
     }).then(value =>{
         data = value;
@@ -79,8 +70,6 @@ router.get('/:id', (req,res) =>{
             isTovary:true,
             data
         });
-    }).then(()=>{
-        client.end();
     })
 })
 

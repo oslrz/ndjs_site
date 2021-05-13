@@ -11,15 +11,18 @@ function splitString(stringToSplit, separator) {
     const arrayOfStrings = stringToSplit.split(separator);
     return(arrayOfStrings);
 }
+
+const client = new Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'postgres',
+    password: '000000',
+    port: 5432
+});
+client.connect()
+
 router.post('/',jsonParser, (req,res) =>{
-    const client = new Client({
-        user: 'postgres',
-        host: 'localhost',
-        database: 'postgres',
-        password: '000000',
-        port: 5432
-    });
-    client.connect().then(()=>{
+
         if(req.body.data!=undefined){
             let inf = req.body.data;
         inf = inf.substring(0, inf.length - 1);
@@ -69,11 +72,8 @@ router.post('/',jsonParser, (req,res) =>{
                 isBusket:true,
                 data
             });
-        }).then(()=>{
-            client.end();
         })
         }
-    })
     
 });
 

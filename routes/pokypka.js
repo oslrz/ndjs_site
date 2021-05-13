@@ -18,17 +18,18 @@ let year = date_ob.getFullYear();
 
 const jsonParser = express.json();
 
+const client = new Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'postgres',
+    password: '000000',
+    port: 5432
+});
+client.connect()
 
 
 router.post('/', jsonParser,(req,res) =>{
-    const client = new Client({
-        user: 'postgres',
-        host: 'localhost',
-        database: 'postgres',
-        password: '000000',
-        port: 5432
-    });
-    client.connect().then(()=>{
+
         let data = req.body.data;
         let adress = req.body.adress;
         if(req.body.login === undefined){
@@ -55,9 +56,6 @@ router.post('/', jsonParser,(req,res) =>{
                 console.log('YPDATED')
             })
         }
-    }).then(()=>{
-        client.end();
-    })
 })
 
 

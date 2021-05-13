@@ -16,6 +16,7 @@ function splitString(stringToSplit, separator) {
 
 
 
+
 router.get('/:id', (req,res) =>{
     const client = new Client({
         user: 'postgres',

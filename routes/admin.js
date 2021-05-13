@@ -26,6 +26,45 @@ const client = new Client({
 });
 client.connect()
 
+function splitString(stringToSplit, separator) {
+    const arrayOfStrings = stringToSplit.split(separator);
+    return(arrayOfStrings);
+} 
+
+
+async function perebor(products,objekt){
+    let string = '';
+    let dat;
+    for(let i = 0;i<products.length-1;i++){
+        if(products[i] === undefined){
+            continue;
+        }else{
+            let keys = splitString(products[i],':');
+            let val = keys[1];
+            keys = keys[0];
+            //console.log(keys)
+            for(let j = 0;j<objekt.length;j++){
+                try{
+                    dat = await  (client.query("SELECT * FROM "+objekt[j].table_name+" where code ='"+keys+"';"))
+                }
+                catch ( err ) {
+                    // console.log(err)
+                }
+                finally {
+                    if(dat.rows[0] != undefined){
+                        string+=dat.rows[0].brand +" "+ dat.rows[0].model+",";
+                        break;
+                    }
+                }
+            }
+            
+        }
+    }
+    return(string);
+}
+
+
+
 router.post('/tabs',jsonParser,(res,req) =>{  
     client.query("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');", (error, response) => {
         if (error) {
@@ -261,13 +300,41 @@ router.post('/customer_pokypka', (req,res)=>{
 
 router.post('/select_user',jsonParser,(req,res)=>{
         if(req.body.username == 'all'){
-            client.query("select * from pokypka;", (error, resp) => {
+            client.query("select * from pokypka;", (error, response) => {
                 if (error) {
                     console.error(error);
                     return;
                 }
-                console.log(resp.rows)
-                res.send(resp.rows);
+                data = response.rows;
+            //console.log("Довжина", data.length)
+            let dat;
+            return new Promise((resolve, reject) =>{
+                client.query("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');", (error, response) => {
+                    if (error) {
+                        console.error(error);
+                        return;
+                    }
+                    resolve(response.rows);
+                });
+            }).then(async value =>{
+                let objekt = value;  
+                for(let i = 0;i<data.length;i++){
+                    let products = data[i].products;
+                    products = splitString(products,',')
+                    try{
+                        data[i].products =await perebor(products,objekt);
+                    }
+                    catch(err){
+                        console.error(err)
+                    }
+                    finally{
+                        //console.log(data[i])
+                    }
+                }
+            }).then(()=>{
+                let sender = JSON.stringify(data);
+                res.send(sender);
+            })
             });
         }else{
             client.query("select * from pokypka where client_id='"+req.body.username+"';", (error, response) => {
@@ -275,9 +342,160 @@ router.post('/select_user',jsonParser,(req,res)=>{
                     console.error(error);
                     return;
                 }
-                res.send(response.rows);
+                data = response.rows;
+            //console.log("Довжина", data.length)
+            let dat;
+            return new Promise((resolve, reject) =>{
+                client.query("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');", (error, response) => {
+                    if (error) {
+                        console.error(error);
+                        return;
+                    }
+                    resolve(response.rows);
+                });
+            }).then(async value =>{
+                let objekt = value;  
+                for(let i = 0;i<data.length;i++){
+                    let products = data[i].products;
+                    products = splitString(products,',')
+                    try{
+                        data[i].products =await perebor(products,objekt);
+                    }
+                    catch(err){
+                        console.error(err)
+                    }
+                    finally{
+                        //console.log(data[i])
+                    }
+                }
+            }).then(()=>{
+                let sender = JSON.stringify(data);
+                res.send(sender);
+            })
             });
         }
+})
+
+
+
+async function perebor_with_count(products,objekt){
+    let string = '';
+    let dat;
+    products = splitString(products,',')
+    for(let i = 0;i<products.length-1;i++){
+        if(products[i] === undefined){
+            continue;
+        }else{
+            let keys = splitString(products[i],':');
+            //console.log(keys)
+            let val = keys[1];
+            keys = keys[0];
+            //console.log(keys)
+            for(let j = 0;j<objekt.length;j++){
+                try{
+                    dat = await  (client.query("SELECT * FROM "+objekt[j].table_name+" where code ='"+keys+"';"))
+                }
+                catch ( err ) {
+                    // console.log(err)
+                }
+                finally {
+                    if(dat.rows[0] != undefined){
+                        string+=dat.rows[0].brand +" "+ dat.rows[0].model+":"+val+":"+dat.rows[0].price+", ";
+                        break;
+                    }
+                }
+            }
+            
+        }
+    }
+    return(string);
+}
+
+router.post('/print_order',jsonParser, (req,res)=>{
+    return new Promise((resolve,rejects)=>{
+        client.query("select * from pokypka where id_pokypku='"+req.body.id_pokypku+"';", (error,response)=>{
+            if(error){
+                console.log(error)
+                return;
+            }
+            resolve(response.rows);
+        })
+    }).then(value=>{
+        let products = value;
+        //console.log(products)
+        return new Promise((resolve, reject) =>{
+            client.query("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');", (error, response) => {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+                resolve(response.rows);
+            });
+        }).then(async value=>{
+            try{
+                products[0].products = await perebor_with_count(products[0].products,value);
+            }
+            catch(err){
+                console.log(err)
+            }
+            finally{
+                //console.log('doce')
+            }
+        }).then(()=>{
+            //console.log(products);
+            return new Promise((resol, rejec)=>{
+                client.query("select * from users where login='"+products[0].client_id+"';", (error,response)=>{
+                    if(error){
+                        console.log(error)
+                        return;
+                    }
+                    resol(response.rows);
+                })
+            }).then(value=>{
+                products[0].client_id = value[0].name + " " + value[0].username;
+                res.send(products);
+            })
+        })
+    })
+})
+
+router.post('/remove_to_archive',jsonParser, (req,res)=>{
+    let data = req.body.id;
+    return new Promise((resolve,rejects)=>{
+        client.query("select * from pokypka where id_pokypku = '"+data+"';",(err,ress)=>{
+            if(err){
+                console.log(err);
+                return;
+            }
+            resolve(ress.rows)
+        })
+    }).then(value=>{
+        let data_from_pokypku = value;
+        return new Promise((resolv,rejects)=>{
+            client.query("delete from pokypka where id_pokypku = '"+data+"';",(err,resspon)=>{
+                if(err){
+                    console.log(err);
+                    return;
+                }
+                resolv(resspon)
+            })
+        }).then(()=>{
+            console.log(data_from_pokypku)
+            console.log(data_from_pokypku[0].id_pokypku)
+            console.log(data_from_pokypku[0].products)
+            console.log(data_from_pokypku[0].client_id)
+            console.log(data_from_pokypku[0].adress)
+            console.log(data_from_pokypku[0].date)
+
+            client.query("insert into archive values('"+data_from_pokypku[0].id_pokypku+"', '"+data_from_pokypku[0].products+"', '"+data_from_pokypku[0].client_id+"', '"+data_from_pokypku[0].adress+"', '"+data_from_pokypku[0].date+"')", (err,resp)=>{
+                if(err){
+                    console.log(err);
+                    return;
+                }
+                console.log(resp.rows);
+            })
+        })
+    })
 })
 
 

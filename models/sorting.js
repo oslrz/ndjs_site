@@ -5,16 +5,18 @@ const router = Router();
 const app = express(); 
 const jsonParser = express.json();
 
+const client = new Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'postgres',
+    password: '000000',
+    port: 5432,
+});
+client.connect()
+
+
 router.post('/left_panel_sort', jsonParser, (res,req)=>{
     let table_name = res.body.table;
-    const client = new Client({
-        user: 'postgres',
-        host: 'localhost',
-        database: 'postgres',
-        password: '000000',
-        port: 5432,
-    });
-    client.connect().then(() => console.log('connected')).catch(err => console.error('connection error', err.stack)).then(()=>{
         return new Promise((resolve,reject)=>{
             const query = "SELECT sort FROM sort_list where tablet = '"+table_name+"'";
             client.query(query, (err, res1) => {
@@ -69,10 +71,6 @@ router.post('/left_panel_sort', jsonParser, (res,req)=>{
                 req.send(objects)
             })
         })
-        
-    }).then(()=>{
-        client.end();
-    })
 })
 router.post('/sort',jsonParser, (req,res)=>{
     console.log(req.body)
@@ -102,14 +100,6 @@ router.post('/sort',jsonParser, (req,res)=>{
         sort_str+= " and price>= '"+parseInt(req.body['min'])+"' and price<= '"+parseInt(req.body['max'])+"'";
     }
     console.log(sort_str);
-    const client = new Client({
-        user: 'postgres',
-        host: 'localhost',
-        database: 'postgres',
-        password: '000000',
-        port: 5432,
-    });
-    client.connect().then(()=>{
         return new Promise((resolve,reject)=>{
             const query = "SELECT * FROM "+table_name+" WHERE "+sort_str;
             console.log(query);
@@ -125,8 +115,7 @@ router.post('/sort',jsonParser, (req,res)=>{
                 }
                 resolve(response.rows);
             });
-        })
-    }).then(value=>{
+        }).then(value=>{
         const data = value;
         let content = '';
         if(data.length == 0){

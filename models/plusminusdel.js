@@ -11,15 +11,16 @@ function splitString(stringToSplit, separator) {
     const arrayOfStrings = stringToSplit.split(separator);
     return(arrayOfStrings);
 }
+const client = new Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'postgres',
+    password: '000000',
+    port: 5432
+});
+client.connect()
 router.post('/', jsonParser, (req,res) =>{
-    const client = new Client({
-        user: 'postgres',
-        host: 'localhost',
-        database: 'postgres',
-        password: '000000',
-        port: 5432
-    });
-    client.connect().then(()=>{
+    
         let data = splitString(req.body.data,":");
         let login = req.body.login;
         let id = '';
@@ -108,8 +109,5 @@ router.post('/', jsonParser, (req,res) =>{
                 })
             })
         }
-    }).then(()=>{
-        client.end();
-    })
 });
 module.exports = router;

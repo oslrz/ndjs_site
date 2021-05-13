@@ -5,16 +5,21 @@ const router = Router();
 const app = express(); 
 
 const jsonParser = express.json();
+
+
+const client = new Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'postgres',
+    password: '000000',
+    port: 5432
+});
+client.connect()
+
+
 router.post('/', jsonParser, (req,res) =>{
     let id = '0';
-    const client = new Client({
-        user: 'postgres',
-        host: 'localhost',
-        database: 'postgres',
-        password: '000000',
-        port: 5432
-    });
-    client.connect().then(()=>{
+    
         function select(){
             return new Promise((resolve, reject) => {
                 console.log(req.body.login)
@@ -91,10 +96,6 @@ router.post('/', jsonParser, (req,res) =>{
                 })
             }
         })
-    
-    }).then(()=>{
-        client.end();
-    })
 })
 
 module.exports = router;
