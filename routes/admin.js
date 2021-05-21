@@ -17,6 +17,22 @@ const jsonParser = express.json();
 router.get('/', (req,res) =>{
     res.render('admin', {});
 })
+
+router.get('/admin_xlsx', (req,res)=>{
+    res.render('admin_xlsx', {});
+})
+
+router.get('/admin_input', (req,res)=>{
+    res.render('admin_input', {});
+})
+
+router.get('/admin_download_xlsx', (req,res)=>{
+    res.render('admin_download_xlsx', {});
+})
+
+router.get('/pokypka', (req,res)=>{
+    res.render('admin_pokypka', {});
+})
 const client = new Client({
     user: 'postgres',
     host: 'localhost',
@@ -30,6 +46,8 @@ function splitString(stringToSplit, separator) {
     const arrayOfStrings = stringToSplit.split(separator);
     return(arrayOfStrings);
 } 
+
+
 
 
 async function perebor(products,objekt){

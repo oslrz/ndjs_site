@@ -1,0 +1,216 @@
+<div id= 'content'>
+
+</div>
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">заказ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="main-modal_content">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">закрити</button>
+        <button type="button" class="btn btn-primary" onclick="PrintMe('main-modal_content')" >друк</button>
+        <button type="button" class="btn btn-success" onclick="done(this)">Виконати</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{!-- <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true"></div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">заказ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="main-modal_content">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">закрити</button>
+        <button type="button" class="btn btn-primary" onclick="PrintMe('main-modal_content')" >друк</button>
+        <button type="button" class="btn btn-success" onclick="done(this)">Виконати</button>
+      </div>
+    </div>
+  </div>
+</div> --}}
+<script>
+
+function splitString(stringToSplit, separator) {
+    const arrayOfStrings = stringToSplit.split(separator);
+    return(arrayOfStrings);
+} 
+
+
+
+    let content = document.getElementById('content')
+window.addEventListener("DOMContentLoaded", ()=>{
+    let pok_list = new XMLHttpRequest();
+    pok_list.open("POST", "/admin/customer_pokypka", true);   
+    pok_list.setRequestHeader("Content-Type", "application/json");
+    pok_list.addEventListener("load", function () {
+        let data = pok_list.responseText;
+        content.innerHTML += '<select id="select_user" class="form-select form-select-sm" aria-label=".form-select-sm example"><option value="all">All</select>';
+        let select_user = document.getElementById('select_user');
+        data = JSON.parse(data);
+        for(let elem of data){
+            select_user.innerHTML+='<option value="'+elem.login+'">'+elem.name+" "+elem.username+'</option>';
+        }
+        content.insertAdjacentHTML('beforeend','<button class="btn btn-primary" style="margin-top: 1rem;" onclick="select_user()">Вибрати</button>')
+    });
+    pok_list.send();
+});
+
+
+function select_user(){
+    let data_form = document.getElementById('select_user');
+    
+    let data = JSON.stringify({
+        'username' : data_form.value
+    })
+    console.log(data)
+    let select_user = new XMLHttpRequest();
+    select_user.open("POST", "/admin/select_user", true);   
+    select_user.setRequestHeader("Content-Type", "application/json");
+    select_user.addEventListener("load", function () {
+        let table_inf = document.getElementById('table_inf');
+        if(table_inf!=null){
+            table_inf.remove();
+        }
+        console.log(select_user.responseText)
+        let stroka = '<table id="table_inf" class="table"><thead><tr>';
+        //let table_inf = document.getElementById(table_inf);
+        let inform = JSON.parse(select_user.responseText)
+        for(let keys in inform[0]){
+                stroka+= '<th scope="col">'+keys+'</th>';
+            }
+            stroka += '</thead><tbody>'
+            for(let elem of inform){
+                let products_list = elem.products;
+                let k = 0
+                products_list = splitString(products_list,","); //  тут лишній елемент
+                console.log(products_list)
+                for(let pos of products_list){
+                    if(pos != ""){
+                        if(k==0){
+                        stroka+='<tr>';
+                    stroka+=`<th scope="row">`+elem.id_pokypku+`</th>
+                        <td>`+pos+`</td>
+                        <td>`+elem.client_id+`</td>
+                       <td>`+elem.adress+`</td>
+                       <td>`+elem.date+`</td>
+                       <td>`+elem.status+`</td>
+                       <td>`+'<button onclick="print_page('+elem.id_pokypku+')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">вибір</button>'+`</td>`;
+                    stroka+='</tr>';
+                    }else{
+                        stroka+='<tr>';
+                        stroka+=`<th scope="row"></th>
+                        <td>`+pos+`</td>
+                        <td></td>
+                       <td></td>
+                       <td></td>`
+                        stroka+='</tr>';
+                    }
+                    k++
+                    }
+                    
+                }
+                k=0;
+            }
+            stroka+='</tbody></table>';
+        if(content.childNodes.length<=5){
+            content.insertAdjacentHTML('beforeend', stroka);
+        }else{
+            let table_node = document.getElementById('table_inf');
+            table_node.remove();
+            content.insertAdjacentHTML('beforeend', stroka);
+        }
+    });
+    select_user.send(data)
+}
+
+function print_page(x){
+    let popup_content = document.getElementById('main-modal_content');
+    popup_content.innerHTML = "<p>№"+x+"</p><br>"; 
+    //let popup_menu = document.getElementById('staticBackdropLabel');
+    let print_inf_data = JSON.stringify({
+        "id_pokypku" : x
+    })
+    let print_inf = new XMLHttpRequest();
+    print_inf.open("POST", "/admin/print_order", true);   
+    print_inf.setRequestHeader("Content-Type", "application/json");
+    print_inf.addEventListener("load", function () {
+        //console.log(print_inf.response);
+        let print_table = JSON.parse(print_inf.response);
+        let print_inf_table = '<table id="popup_table" class="table"><thead><tr>';
+        
+        print_inf_table+= '<th scope="col">#</th><th scope="col">назва</th><th scope="col">кількість</th><th scope="col">ціна</th>';
+        
+        print_inf_table += '</thead><tbody>';
+        let products_list = splitString(print_table[0].products,",");
+        let kilk = 1;
+        for(let i =0;i<products_list.length-1;i++){
+            print_inf_table+='<tr>';
+            let all = splitString(products_list[i],":")
+            let name = all[0];
+            let count = all[1];
+            let price = all[2];
+            print_inf_table+='<td>'+kilk+'</td><td>'+name+'</td><td>'+count+'</td><td>'+price+'</td>'
+            kilk++;
+            print_inf_table+='</tr>';
+        }
+        print_inf_table+='</tbody></table>';
+        popup_content.innerHTML+= print_inf_table;
+        popup_content.innerHTML+= "<p>"+print_table[0].client_id+"</p>";
+        popup_content.innerHTML+= "<p>Адреса: "+print_table[0].adress+"</p>";
+        (function(){
+            let suma = 0;
+            let popup_table = document.getElementById('popup_table');
+            //console.log(popup_table.childNodes[1])
+            for(let i = 0;i<popup_table.childNodes[1].childNodes.length;i++){
+                suma += parseInt(popup_table.childNodes[1].childNodes[i].childNodes[3].innerHTML)
+            }
+            popup_table.insertAdjacentHTML('afterend','<p>Загальна сума: '+suma+'</p><br>')
+        }())
+    });
+    print_inf.send(print_inf_data)
+}
+function PrintMe(DivID) {
+var disp_setting="toolbar=yes,location=no,";
+disp_setting+="directories=yes,menubar=yes,";
+disp_setting+="scrollbars=yes,width=650, height=600, left=100, top=25";
+   var content_vlue = document.getElementById(DivID).innerHTML;
+   var docprint=window.open("","",disp_setting);
+   docprint.document.open();
+   docprint.document.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"');
+   //docprint.document.write('"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">');
+   //docprint.document.write('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">');
+   docprint.document.write('<head><title>Чек</title>');
+   //docprint.document.write('<style type="text/css">body{ margin:0px;');
+  // docprint.document.write('font-family:verdana,Arial;color:#000;');
+   //docprint.document.write('font-family:Verdana, Geneva, sans-serif; font-size:12px;}');
+   //docprint.document.write('a{color:#000;text-decoration:none;} </style>');
+   docprint.document.write('</head><body onLoad="self.print()"><center>');
+   docprint.document.write(content_vlue);
+   docprint.document.write('</center></body></html>');
+   docprint.document.close();
+   docprint.focus();
+}
+function done(x){
+    let code = x.parentElement.parentElement.childNodes[3].childNodes[0].innerHTML;
+    code = code.slice(1,code.length);
+    let remove_data = JSON.stringify({
+        "id" : code
+    })
+    let remove = new XMLHttpRequest();
+    remove.open("POST", "/admin/remove_to_archive", true);   
+    remove.setRequestHeader("Content-Type", "application/json");
+    remove.addEventListener("load", function () {
+    })
+    remove.send(remove_data)
+}
+
+</script>

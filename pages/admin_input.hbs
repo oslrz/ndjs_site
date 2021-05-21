@@ -1,0 +1,89 @@
+<div id='content'>
+
+</div>
+<script>
+function splitString(stringToSplit, separator) {
+    const arrayOfStrings = stringToSplit.split(separator);
+    return(arrayOfStrings);
+} 
+
+let content = document.getElementById('content');
+
+window.addEventListener("DOMContentLoaded", ()=>{
+    let request = new XMLHttpRequest();
+    let data =JSON.stringify({
+        "content" : "*"
+    });
+    request.open("POST", "/admin/tabs", true);   
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", function () {
+        input(request.response);
+    });
+    request.send(data);
+})
+
+function input(x){
+    let json_data = JSON.parse(x)
+    let select = '<select id="insel_tab" class="form-select form-select-sm" aria-label=".form-select-sm example">'
+    for(let i = 0;i<json_data.length;i++){
+        select+= '<option value="'+json_data[i].table_name+'">'+json_data[i].table_name+'</option>';
+    }
+    select+='</select><button type="button" onclick="select_bttn()" class="btn btn-primary" style="margin-top: 1rem;margin-bottom: 3rem;">Select</button>';
+    content.insertAdjacentHTML('beforeend', "<h2 id='sel_tab'>select table</h2>")
+    content.insertAdjacentHTML('beforeend', select);
+}
+
+function select_bttn(){
+    let forma_vidpr = document.getElementById('forma_vidpr')
+    if(forma_vidpr != null){
+        forma_vidpr.remove();
+    }
+    let select_form = document.getElementById('insel_tab');
+    let request1 = new XMLHttpRequest();
+    let data1 =JSON.stringify({
+        "content" : select_form.value
+    });
+    request1.open("POST", "/admin/polyatabl", true);   
+    request1.setRequestHeader("Content-Type", "application/json");
+    request1.addEventListener("load", function () {
+        input2(request1.response,select_form.value);
+    });
+    request1.send(data1);
+}
+
+function input2(x,y){
+        let json_tabs = JSON.parse(x);
+        let form = '<form method="POST" id="forma_vidpr" tb_name="'+y+'">';
+        for(let i = 0;i<json_tabs.length;i++){
+            form+=`<div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">`+json_tabs[i].column_name+`</span>
+                    <input type="text" class="form-control" name="`+json_tabs[i].column_name+`" aria-describedby="basic-addon1">
+                   </div>`
+        }
+        form+='<button type="button" onclick="insert_bttn()" class="btn btn-primary" style="margin-top: 1rem;">Input</button></form>';
+        console.log(form)
+    
+        content.insertAdjacentHTML('beforeend', form);
+}
+
+function insert_bttn(){
+    let forma = document.getElementById('forma_vidpr');
+    let table_name = forma.getAttribute('tb_name');
+    console.log('tb_name ', table_name)
+    let data = new Map()
+    data.set("table",table_name);
+    console.log('---------------')
+    for(let i = 0;i<forma.childNodes.length-1;i++){
+        data.set(forma.childNodes[i].childNodes[1].innerHTML,forma.childNodes[i].childNodes[3].value);
+    }
+    let obj = Object.fromEntries(data);
+    data = JSON.stringify(obj);
+    let request2 = new XMLHttpRequest();
+    request2.open("POST", "/admin/insert", true);   
+    request2.setRequestHeader("Content-Type", "application/json");
+    request2.addEventListener("load", function () {
+        console.log(request2.responseText)
+    });
+    request2.send(data);
+}
+</script>

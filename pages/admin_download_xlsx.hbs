@@ -1,0 +1,59 @@
+<div id = 'content'>
+
+</div>
+<script>
+    let content = document.getElementById('content')
+window.addEventListener("DOMContentLoaded", ()=>{
+    let request = new XMLHttpRequest();
+    let data =JSON.stringify({
+        "content" : "*"
+    });
+    request.open("POST", "/admin/tabs", true);   
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", function () {
+        xlsx_input(request.response);
+    });
+    request.send(data);
+})
+
+
+function xlsx_input(x){
+    let json_data = JSON.parse(x);
+    let select = '<select id="insel_tab1" class="form-select form-select-sm" aria-label=".form-select-sm example">'
+    for(let i = 0;i<json_data.length;i++){
+        select+= '<option value="'+json_data[i].table_name+'">'+json_data[i].table_name+'</option>';
+    }
+    select+='</select><button type="button" onclick="xlsx_bttn()" id="xlsx_bttn" class="btn btn-primary" style="margin-top: 1rem;margin-bottom: 3rem;">Select</button>';
+    content.insertAdjacentHTML("beforeend", "<h2 id='sel_tab1'>select table</h2>");
+    content.insertAdjacentHTML('beforeend', select);
+    console.log(select)
+}
+
+function xlsx_bttn(){
+
+    content.insertAdjacentHTML("beforeend","<br><a onclick='del_xlsx()' href='/public/table.xlsx' >Скачати файл</a>")
+    let xlsx_value = document.getElementById('insel_tab1');
+    let data = JSON.stringify({
+        "content" : xlsx_value.value
+    })
+    let request = new XMLHttpRequest();
+    request.open("POST", "/admin/jsontoxlsx", true);   
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", function () {
+        console.log(request.responseText);
+    });
+    request.send(data);
+}
+
+function del_xlsx(){
+    console.log('locationnnn')
+    let request = new XMLHttpRequest();
+    let data='';
+    request.open("POST", "/admin/delxlsx", true);   
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", function () {
+        console.log(request.responseText);
+    });
+    request.send(data);
+}
+</script>

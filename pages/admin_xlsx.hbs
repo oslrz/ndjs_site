@@ -1,0 +1,83 @@
+<div id = 'content'>
+
+</div>
+<script>
+let content = document.getElementById('content');
+document.addEventListener("DOMContentLoaded", () =>{
+    
+    let request = new XMLHttpRequest();
+    let data =JSON.stringify({
+        "content" : "*"
+    });
+    request.open("POST", "/admin/tabs", true);   
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", function () {
+        console.log(request.responseText)
+        input(request.response)
+    });
+    request.send(data);
+})
+    
+function input(x){
+    let json_tabs = JSON.parse(x);
+    //console.log(json_tabs);
+    let select = '<select id="insel_tab1" class="form-select form-select-sm" aria-label=".form-select-sm example">'
+    for(let i = 0;i<json_tabs.length;i++){
+        select+= '<option value="'+json_tabs[i].table_name+'">'+json_tabs[i].table_name+'</option>';
+    }
+    select+='</select><button type="button" onclick="select_bttn()" class="btn btn-primary" style="margin-top: 1rem;margin-bottom: 3rem;">Select</button>';
+    content.insertAdjacentHTML('beforeend', select);
+}
+
+function select_bttn(){
+    let list = document.getElementById('list');
+    if(list != null){
+        list.remove();
+    }
+    let select_form = document.getElementById('insel_tab1');
+    let request1 = new XMLHttpRequest();
+    let data1 =JSON.stringify({
+        "content" : select_form.value
+    });
+    request1.open("POST", "/admin/polyatabl", true);   
+    request1.setRequestHeader("Content-Type", "application/json");
+    request1.addEventListener("load", function () {
+        check_list(request1.response,select_form.value);
+    });
+    request1.send(data1);
+}
+
+function check_list(x,y){
+    let tabs = JSON.parse(x);
+    let list = '<form id="list" tb_name="'+y+'">';
+    for(let i = 0;i<tabs.length;i++){
+        list+= `<input type="text" class="form-control" placeholder='`+tabs[i].column_name+`' name="`+tabs[i].column_name+`" aria-describedby="basic-addon1">`;
+    }
+    list+='<button type="button" onclick="check_()" class="btn btn-primary" style="margin-top: 1rem;">Input</button></form>';
+    content.insertAdjacentHTML('beforeend', list);
+}
+
+function check_(){
+    let list = document.getElementById('list');
+    let tb_name = list.getAttribute('tb_name')
+    let spysok = {};
+    for(let i=0;i<list.childNodes.length-1;i++){
+        //console.log(list.childNodes[i].placeholder,list.childNodes[i].value);
+        spysok[list.childNodes[i].value] = list.childNodes[i].placeholder;
+    }
+    spysok["table"] = tb_name;
+    //spysok = JSON.stringify(spysok)
+    let list_html=`<form action="/admin/xlsx" enctype="multipart/form-data" method="POST">
+            <div class="input-group mb-3">
+                <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon03">Button</button>
+                <input type="file"  name="xlsx1" class="form-control" id="inputGroupFile03" aria-describedby="inputGroupFileAddon03" aria-label="Upload">
+                <input type="hidden" id='spysok' name="spysok">
+            </div>
+        </form>`
+    
+    let vstavka = document.getElementById('v-pills-home');
+    vstavka.insertAdjacentHTML('beforeend', list_html);
+    let spys = document.getElementById('spysok');
+    spys.value = JSON.stringify(spysok);
+}
+</script>

@@ -17,9 +17,14 @@ const express = require("express"),
     fs = require('fs'),
     path = require('path'),
     { Client } = require('pg'),
-    usersRouter = require('./routes/users')
+    usersRouter = require('./routes/users'),
+    log4js = require("log4js")
+    
+    
+var logger = log4js.getLogger();
+logger.level = "debug";
 
-
+    
 
 const hbs = exphbs.create({       
     defaultLayout:"main",         
@@ -51,7 +56,7 @@ app.use('/user', usersRouter);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`server is runing on port ${PORT}`);
+    logger.info(`server is runing on port ${PORT}`);
 });
 
 
@@ -137,6 +142,7 @@ app.post('/prod_photo',jsonParser,(req,res) =>{
         })
     })
 })
+
 
 
 
