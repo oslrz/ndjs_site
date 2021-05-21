@@ -1,3 +1,5 @@
+const { resolve } = require("path");
+
 const express = require("express"),                    
     exphbs = require("express-handlebars"),             
     app = express(),                                     
@@ -143,32 +145,65 @@ app.post('/prod_photo',jsonParser,(req,res) =>{
     })
 })
 
-
-
-
-// var convert = require('xml-js');
-// var xml = require('fs').readFileSync('./import0_1.xml', 'utf8');
-// var options = {ignoreComment: true, alwaysChildren: true};
-// var result = convert.xml2js(xml, options); // or convert.xml2json(xml, options)
-// // console.log(result.elements[0].elements[1].elements[4].elements[0].elements[2]);
-// let c = 0;
-// for(let elem of result.elements[0].elements[1].elements[4].elements){
-//     elem.elements.forEach(elements =>{
-//         if(elements.name == 'Наименование'){
-//             console.log(elements.elements[0].text)
-//             c++
-//         }
-//     })
-// }
-// console.log(c);
-
-
 app.get('/c1xlsx_get',(req,res)=>{
     res.send('geeeet');
 })
 app.post('/c1xlsx_post',(req,res)=>{
     res.send('pooooost');
 })
+
+
+
+
+
+const client = new Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'postgres',
+    password: '000000',
+    port: 5432
+});
+client.connect().then(()=>{
+    return new Promise((resolve,reject) =>{
+        client.query(`SELECT name from table_names;`, (error, response) => {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            resolve(response.rows)
+        })
+    }).then(value=>{
+        let data = value;
+        return new Promise(async (resolv,reject)=>{
+            let all_files = [];
+            await fs.readdir("./public/files", (err, files) => {
+                files.forEach(file =>{
+                    all_files.push(file);
+                });
+            })
+            resolve(all_files);
+        }).then(value=>{
+            for(let elem of data){
+                if(value.includes(elem.name)){
+                    console.log(elem.name)
+                }
+                //console.log(all_files.includes(elem.name))
+            }
+        })
+    })
+})
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
