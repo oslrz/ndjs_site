@@ -33,6 +33,11 @@ router.get('/admin_download_xlsx', (req,res)=>{
 router.get('/pokypka', (req,res)=>{
     res.render('admin_pokypka', {});
 })
+
+router.get('/add_photo', (req,res) =>{
+    res.render('add_photo', {});
+})
+
 const client = new Client({
     user: 'postgres',
     host: 'localhost',
@@ -40,6 +45,8 @@ const client = new Client({
     password: '000000',
     port: 5432
 });
+
+
 client.connect()
 
 function splitString(stringToSplit, separator) {
@@ -47,6 +54,33 @@ function splitString(stringToSplit, separator) {
     return(arrayOfStrings);
 } 
 
+
+
+
+// const middlewares = [
+//     // ...
+//     bodyParser.urlencoded()
+// ]
+router.use(express.urlencoded());
+router.use(express.json());
+const { parse } = require('querystring');
+router.post('/add_by_code', async (req,res) =>{
+    let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            body = parse(body)
+            console.log(body)
+            for(let elem in body){
+                console.log(elem)
+            }
+        });
+    // req.on('end', () => {
+    //     console.log(body);
+    //     res.end('ok');
+    // });
+})
 
 
 

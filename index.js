@@ -153,7 +153,36 @@ app.post('/c1xlsx_post',(req,res)=>{
 })
 
 
-
+// async function make_papka(elem){
+//     return new Promise((reso, reje)=>{
+//         client.query(`SELECT code from `+elem.name, (error, response) => {
+//             if (error) {
+//                 logger.error(error);
+//                 return;
+//             }
+//             reso(response.rows);
+//         })
+//     }).then(async value=>{
+//         let all_papka = [];
+//         await fs.readdir("./public/files/"+elem.name, (err, files) => {
+//             files.forEach(file =>{
+//                 all_papka.push(file);
+//             });
+//         })
+//         console.log(all_papka);
+//         for(let ell of value){
+//             //console.log(ell.code)
+//             if(!all_papka.includes(ell.code)){
+//                 fs.mkdir('./public/files/'+elem.name+'/'+ell.code,(err)=>{
+//                     if(err){
+//                         console.error(err);
+//                         return;
+//                     }
+//                 })
+//             }
+//         }
+//     })
+// }
 
 
 const client = new Client({
@@ -180,14 +209,22 @@ client.connect().then(()=>{
                 files.forEach(file =>{
                     all_files.push(file);
                 });
+                resolv(all_files);
             })
-            resolve(all_files);
         }).then(value=>{
+            //console.log(value)
             for(let elem of data){
-                if(value.includes(elem.name)){
-                    console.log(elem.name)
+                //console.log(elem.name)
+                if(!value.includes(elem.name)){
+                    fs.mkdir('./public/files/'+elem.name,(err)=>{
+                        if(err){
+                            console.error(err);
+                            return;
+                        }
+                    })
                 }
-                //console.log(all_files.includes(elem.name))
+                // console.log(elem.name)
+                // make_papka(elem);
             }
         })
     })
