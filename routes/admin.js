@@ -1,3 +1,5 @@
+const { Logger } = require('log4js');
+
 const {Router} = require('express'),
     router = Router(),
     path = require('path'),
@@ -8,11 +10,11 @@ const {Router} = require('express'),
     { resolve } = require('path'),
     { rejects } = require('assert'),
     e = require('express'),
-    app = express()
-
+    app = express(),
+    fs = require('fs')
 
 const jsonParser = express.json();
-
+let photos_code;
 
 router.get('/', (req,res) =>{
     res.render('admin', {});
@@ -57,29 +59,38 @@ function splitString(stringToSplit, separator) {
 
 
 
-// const middlewares = [
-//     // ...
-//     bodyParser.urlencoded()
-// ]
-router.use(express.urlencoded());
-router.use(express.json());
-const { parse } = require('querystring');
-router.post('/add_by_code', async (req,res) =>{
-    let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', () => {
-            body = parse(body)
-            console.log(body)
-            for(let elem in body){
-                console.log(elem)
+
+router.post('/add_by_code',jsonParser,(req,res) =>{
+    photos_code = req.body.code;
+    return new Promise((resolve,reject)=>{
+        client.query(`SELECT table_name FROM information_schema.tables
+        WHERE table_schema NOT IN ('information_schema','pg_catalog');`,(error,response)=>{
+            resolve(response.rows);
+        })
+    }).then(async value=>{
+        let zapyt;
+        console.log(photos_code)
+        for(let elem of value){
+            //console.log('table', elem.table_name)
+            try{
+                zapyt = await (client.query("SELECT * FROM "+elem.table_name+" where code ='"+photos_code+"';"))
             }
-        });
-    // req.on('end', () => {
-    //     console.log(body);
-    //     res.end('ok');
-    // });
+            catch{
+                console.error("Тут немає --> " + elem.table_name);
+            }
+            finally{
+                if(zapyt.rows[0]){
+                    return(elem.table_name)
+                }
+            }
+        }
+    }).then(value =>{
+        console.log('then', value)
+    })
+})
+
+router.post('/add_by_code1',(req,res) =>{
+    console.log('valera', photos_code)
 })
 
 
