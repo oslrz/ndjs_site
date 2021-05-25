@@ -142,14 +142,15 @@ router.post("/add_files",jsonParser, function (req, res, next) {
             console.log(items[i]);
             let oldPath = path.join(__dirname,'uploads/'+items[i])
             let newPath = path.join(__dirname,'/public/files/'+photos_table+'/'+photos_code+'/'+items[i])
-            try {
-                await fs.copyFile(oldPath, newPath, constants.COPYFILE_EXCL);
-                console.log('source.txt was copied to destination.txt');
-              } catch {
-                console.log('The file could not be copied');
-                console.log('old',oldPath);
-                console.log('new',newPath)
-              }
+            // try {
+            //     await fs.copyFile(oldPath, newPath, constants.COPYFILE_EXCL);
+            //     console.log('source.txt was copied to destination.txt');
+            //   } catch {
+            //     console.log('The file could not be copied');
+            //     console.log('old',oldPath);
+            //     console.log('new',newPath)
+            //   }
+            fs.unlink(oldPath)
         }
     });
     //console.log('papk', papk)
