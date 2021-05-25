@@ -151,6 +151,12 @@ app.get('/c1xlsx_get',(req,res)=>{
 app.post('/c1xlsx_post',(req,res)=>{
     res.send('pooooost');
 })
+// fs.mkdir('./public/files/mobile_phones/',(err)=>{
+//        if(err){
+//            console.error(err);
+//         return;
+//      }
+// })
 
 
 // async function make_papka(elem){

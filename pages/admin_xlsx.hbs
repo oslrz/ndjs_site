@@ -62,7 +62,6 @@ function check_(){
     let tb_name = list.getAttribute('tb_name')
     let spysok = {};
     for(let i=0;i<list.childNodes.length-1;i++){
-        //console.log(list.childNodes[i].placeholder,list.childNodes[i].value);
         spysok[list.childNodes[i].value] = list.childNodes[i].placeholder;
     }
     spysok["table"] = tb_name;
@@ -74,7 +73,6 @@ function check_(){
                 <input type="hidden" id='spysok' name="spysok">
             </div>
         </form>`
-    
     let vstavka = document.getElementById('v-pills-home');
     vstavka.insertAdjacentHTML('beforeend', list_html);
     let spys = document.getElementById('spysok');

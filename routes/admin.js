@@ -11,10 +11,20 @@ const {Router} = require('express'),
     { rejects } = require('assert'),
     e = require('express'),
     app = express(),
-    fs = require('fs')
+    fs = require('fs'),
+    fs1 = require ('fs.extra')
+
+
 
 const jsonParser = express.json();
+    
+
+
 let photos_code;
+let photos_table;
+let storageConfig;
+
+
 
 router.get('/', (req,res) =>{
     res.render('admin', {});
@@ -76,21 +86,73 @@ router.post('/add_by_code',jsonParser,(req,res) =>{
                 zapyt = await (client.query("SELECT * FROM "+elem.table_name+" where code ='"+photos_code+"';"))
             }
             catch{
-                console.error("Тут немає --> " + elem.table_name);
+                console.error("Тут немає --> " + elem.table_name);//0673545745 igor 
             }
             finally{
-                if(zapyt.rows[0]){
-                    return(elem.table_name)
+                if(zapyt.rows[0]){  ////////////ПОПРАВИТИ ПЕРЕВІРКУ!
+                    photos_table = elem.table_name;
+                    return(zapyt.rows[0]);
+                    
                 }
             }
         }
     }).then(value =>{
-        console.log('then', value)
+        fs.mkdir('../public/files/'+photos_table, function(err){
+            if(err){
+                console.error(err)
+                return;
+            }
+            console.log('papka1 was stvorena')
+        })
+        fs.mkdir(path.join(__dirname, '../public/files/'+photos_table+"/"+photos_code), function(err){
+            if(err){
+                console.error(err)
+                return;
+            }
+            console.log('papka2 was stvorena')
+            console.log('../public/files/'+photos_table+"/"+photos_code);
+        })
+        res.send(value)
     })
 })
 
-router.post('/add_by_code1',(req,res) =>{
-    console.log('valera', photos_code)
+storageConfig = multer.diskStorage({
+    destination: (req, file, cb) =>{
+        cb(null, "uploads");
+    },
+    filename: (req, file, cb) =>{
+        cb(null, file.originalname);
+    }
+});
+
+router.use(multer({storage:storageConfig}).single("photos"));
+router.use(express.static(path.join(__dirname, 'public')));
+
+
+router.post("/add_files",jsonParser, function (req, res, next) { 
+    let filedata = req.file;
+    //console.log(filedata)
+    console.log('table',photos_table);
+    console.log('code',photos_code);
+
+
+    fs.readdir('uploads', async function(err, items) {
+        console.log(items);
+        for (let i=0; i<items.length; i++) {
+            console.log(items[i]);
+            let oldPath = path.join(__dirname,'uploads/'+items[i])
+            let newPath = path.join(__dirname,'/public/files/'+photos_table+'/'+photos_code+'/'+items[i])
+            try {
+                await fs.copyFile(oldPath, newPath, constants.COPYFILE_EXCL);
+                console.log('source.txt was copied to destination.txt');
+              } catch {
+                console.log('The file could not be copied');
+                console.log('old',oldPath);
+                console.log('new',newPath)
+              }
+        }
+    });
+    //console.log('papk', papk)
 })
 
 
